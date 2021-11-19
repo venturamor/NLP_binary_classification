@@ -4,68 +4,63 @@ from gensim.models import Word2Vec
 import gensim.downloader
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
+import numpy as np
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+
 
 class EntityDataSet(Dataset):
-    def __init__(self, file_path, prev_wind_size = 1, next_wind_size = 1, tokenizer=None):
+    def __init__(self, file_path, window_size_prev=1, window_size_next=1, tokenizer=None):
         """
         :param file_path:
         :param tokenizer:
         :param wind_size: prev + curr word + next window
         """
-        self.wind_size.prev = prev_wind_size
-        self.wind_size.next = next_wind_size
+        # padding is essential for representing the neighbors of the words in the edges
+        padding_word = '*'
 
+        # open and read the file content
         self.file_path = file_path
         data = open(file_path, "r").read()
+
+        # prepare the data
         tagged_sentences = data.split('\n\n')
         tagged_words_lists = [sentence.split('\n') for sentence in tagged_sentences]
-        self.words_lists = [[tagged_word.split('\t')[0] for tagged_word in tagged_word_list] for tagged_word_list in tagged_words_lists]
-        self.tags_lists = [[tagged_word.split('\t')[1] for tagged_word in tagged_word_list] for tagged_word_list in tagged_words_lists]
-        self.bin_tags_lists = [[tag != 'O' for tag in tags_list] for tags_list in self.tags_lists]  # tag != 'O' for tag in tags_list
 
-        # padding  before we tokenize the sentence
-        padding_word = '*****'
+        self.words_lists = \
+            [[tagged_word.split('\t')[0] for tagged_word in tagged_word_list] for tagged_word_list in tagged_words_lists]
+        self.tags_lists = \
+            [[(tagged_word.split('\t')[1]) for tagged_word in tagged_word_list] for tagged_word_list in tagged_words_lists]
+        self.bin_tags_lists =\
+            [[tag != 'O' for tag in tags_list] for tags_list in self.tags_lists]
 
+        # padding  before tokenize the sentence
+        left_padding = [padding_word] * window_size_prev
+        right_padding = [padding_word] * window_size_next
+        self.words_lists_with_padding = [left_padding + words_list + right_padding for words_list in self.words_lists]
 
-        # if tokenizer is None:   # default word2vec
-            # self.tokenizer = gensim.downloader.load('word2vec-google-news-300')
-            # print(self.tokenizer.most_similar('shavasana'))
-            # self.tokenized_words = self.tokenizer.wv(self.words_lists)
-
-            # model = Word2Vec(sentences=common_texts, vector_size=100, window=5, min_count=1, workers=4)
-            # model.save("word2vec.model")
-
-        # else:
-        #     self.tokenizer = tokenizer
-        #     self.tokenized_sen = self.tokenizer(self.words_lists)
-
+        # create a list of tokenized sentences
+        if tokenizer is None:   # default word2vec
+            self.tokenizer = gensim.downloader.load('glove-twitter-25')
+            # @TODO
+            # Create labeled data from the tokenizer
+            print(self.tokenizer['computer'])
+        else:
+            self.tokenizer = tokenizer
+            self.tokenized_sen = self.tokenizer(self.words_lists)
 
         self.vocabulary_size = len(self.tokenizer.vocabulary_)
-
+        self.items = []
         # as if we have self.tokenized_words:
-
-
-        {idx : [tokenized_word for tokenized_word in self.tokenized_words }
+        # {idx : [tokenized_word for tokenized_word in self.tokenized_words }
 
     def __getitem__(self, item):
-    """
-    param: item index for word
-    """
-        # return self.___[item]
+        """
+        param: item index for word
+        """
+        return self.items[item]
 
-
-
-
-
-if __name__ == '__main__':
-
-    file_path = "data/train_fixed.tagged"
-    dataset = EntityDataSet(file_path)
-    print("done")
-
-
-
-#
 # class SpamDataSet(Dataset):
 #
 #     def __init__(self, file_path, tokenizer=None):
