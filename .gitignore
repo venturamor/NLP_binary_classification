@@ -1,0 +1,8 @@
+
+*.tagged
+*.untagged
+*.xml
+HW1/data/wnuteval.py
+HW1/data/desktop.ini
+HW1/.idea/HW1.iml
+HW1 - WET.docx
