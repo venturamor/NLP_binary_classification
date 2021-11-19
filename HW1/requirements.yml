@@ -1,0 +1,9 @@
+name: nlp_hw1
+dependencies:
+    #- torch
+    - pandas
+    - seaborn
+    - scikit-learn
+    - numpy
+    - matplotlib
+    - scipy
