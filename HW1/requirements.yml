@@ -1,6 +1,6 @@
 name: nlp_hw1
 dependencies:
-    #- torch
+    - pytorch
     - pandas
     - seaborn
     - scikit-learn
