@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 from gensim.models import Word2Vec
+import gensim
 from gensim import downloader
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -8,6 +9,10 @@ import numpy as np
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+
+#
+WORD_2_VEC_PATH = 'word2vec-google-news-300'
+GLOVE_PATH = 'glove-twitter-25'
 
 
 class EntityDataSet(Dataset):
@@ -22,7 +27,7 @@ class EntityDataSet(Dataset):
 
         # open and read the file content
         self.file_path = file_path
-        data = open(file_path, "r").read()
+        data = open(file_path, "r").read().lower()
 
         # prepare the data
         tagged_sentences = data.split('\n\n')[:-1]
@@ -42,7 +47,7 @@ class EntityDataSet(Dataset):
 
         # create a list of tokenized sentences
         if tokenizer is None:   # default word2vec
-            self.tokenizer = downloader.load('glove-twitter-25') #'word2vec-google-news-300'
+            self.tokenizer = downloader.load(GLOVE_PATH) #'word2vec-google-news-300'
             # @TODO
             # Create labeled data from the tokenizer
             print(self.tokenizer['computer'])
