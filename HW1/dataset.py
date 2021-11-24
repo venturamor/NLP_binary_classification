@@ -6,9 +6,7 @@ from gensim import downloader
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
+
 
 #
 WORD_2_VEC_PATH = 'word2vec-google-news-300'
@@ -64,6 +62,26 @@ class EntityDataSet(Dataset):
         self.vocabulary_size = len(self.tokenizer.vocabulary_)
         self.items = []
         # as if we have self.tokenized_words:
+
+        # unique dict words to embedd
+        words = [item for sublist in self.words_lists for item in sublist]
+        embeddings = model.wv[words]
+
+        dict_words2embedd = {}
+        for idx, word in enumerate(words):
+            if word not in dict_words2embedd.keys():
+                dict_words2embedd[word] = embeddings[idx, :]
+            else:
+                continue
+
+
+
+
+        # words_uniq = list(set(words))
+        # embeddings_uniq = model.wv[words_uniq]
+
+        dict_word2embed = {}
+        #
         # {idx : [tokenized_word for tokenized_word in self.tokenized_words }
 
     def __getitem__(self, item):
