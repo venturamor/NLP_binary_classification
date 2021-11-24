@@ -12,7 +12,7 @@ from sklearn.svm import SVC
 
 #
 WORD_2_VEC_PATH = 'word2vec-google-news-300'
-GLOVE_PATH = 'gensim-model-glove-twitter-25'
+GLOVE_PATH = 'glove-twitter-25'
 
 
 class EntityDataSet(Dataset):
@@ -47,12 +47,18 @@ class EntityDataSet(Dataset):
 
         # create a list of tokenized sentences
 
-        model = gensim.models.Word2Vec.load(GLOVE_PATH)
+        # TODO: load pre-trained model and only then train on our model
+        # model = gensim.models.Word2Vec.load(GLOVE_PATH)
+        # model.build_vocab(self.words_lists, update=True)
+        # model.train(self.words_lists, total_examples=model.corpus_count, epochs=model.epochs)
 
-        model.build_vocab(self.words_lists, update=True)
-        model.train(self.words_lists, total_examples=model.corpus_count, epochs=model.epochs)
+        # TODO: hyper-params of training as input in struct params / *args
+        vector_size = 50
+        model = Word2Vec(sentences=self.words_lists, vector_size=vector_size, window=5, min_count=1, workers=1, epochs=1)
+        model.save("word2vec.model") #  model.wv is the embedding
 
-            # Create labeled data from the tokenizer
+
+        # Create labeled data from the tokenizer
 
 
         self.vocabulary_size = len(self.tokenizer.vocabulary_)
