@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 from gensim.models import Word2Vec
-import gensim.downloader
+from gensim import downloader
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
@@ -18,14 +18,14 @@ class EntityDataSet(Dataset):
         :param wind_size: prev + curr word + next window
         """
         # padding is essential for representing the neighbors of the words in the edges
-        padding_word = '*'
+        # padding_word = '*'
 
         # open and read the file content
         self.file_path = file_path
         data = open(file_path, "r").read()
 
         # prepare the data
-        tagged_sentences = data.split('\n\n')
+        tagged_sentences = data.split('\n\n')[:-1]
         tagged_words_lists = [sentence.split('\n') for sentence in tagged_sentences]
 
         self.words_lists = \
@@ -35,14 +35,14 @@ class EntityDataSet(Dataset):
         self.bin_tags_lists =\
             [[tag != 'O' for tag in tags_list] for tags_list in self.tags_lists]
 
-        # padding  before tokenize the sentence
-        left_padding = [padding_word] * window_size_prev
-        right_padding = [padding_word] * window_size_next
-        self.words_lists_with_padding = [left_padding + words_list + right_padding for words_list in self.words_lists]
+        # # padding  before tokenize the sentence
+        # left_padding = [padding_word] * window_size_prev
+        # right_padding = [padding_word] * window_size_next
+        # self.words_lists_with_padding = [left_padding + words_list + right_padding for words_list in self.words_lists]
 
         # create a list of tokenized sentences
         if tokenizer is None:   # default word2vec
-            self.tokenizer = gensim.downloader.load('glove-twitter-25')
+            self.tokenizer = downloader.load('glove-twitter-25') #'word2vec-google-news-300'
             # @TODO
             # Create labeled data from the tokenizer
             print(self.tokenizer['computer'])
