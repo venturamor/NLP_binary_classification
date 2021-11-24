@@ -12,7 +12,7 @@ from sklearn.svm import SVC
 
 #
 WORD_2_VEC_PATH = 'word2vec-google-news-300'
-GLOVE_PATH = 'glove-twitter-25'
+GLOVE_PATH = 'gensim-model-glove-twitter-25'
 
 
 class EntityDataSet(Dataset):
@@ -46,14 +46,14 @@ class EntityDataSet(Dataset):
         # self.words_lists_with_padding = [left_padding + words_list + right_padding for words_list in self.words_lists]
 
         # create a list of tokenized sentences
-        if tokenizer is None:   # default word2vec
-            self.tokenizer = downloader.load(GLOVE_PATH) #'word2vec-google-news-300'
-            # @TODO
+
+        model = gensim.models.Word2Vec.load(GLOVE_PATH)
+
+        model.build_vocab(self.words_lists, update=True)
+        model.train(self.words_lists, total_examples=model.corpus_count, epochs=model.epochs)
+
             # Create labeled data from the tokenizer
-            print(self.tokenizer['computer'])
-        else:
-            self.tokenizer = tokenizer
-            self.tokenized_sen = self.tokenizer(self.words_lists)
+
 
         self.vocabulary_size = len(self.tokenizer.vocabulary_)
         self.items = []
