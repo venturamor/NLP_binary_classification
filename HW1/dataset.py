@@ -36,7 +36,7 @@ class EntityDataSet(Dataset):
         self.tags_lists = \
             [[(tagged_word.split('\t')[1]) for tagged_word in tagged_word_list] for tagged_word_list in tagged_words_lists]
         self.bin_tags_lists =\
-            [[tag != 'O' for tag in tags_list] for tags_list in self.tags_lists]
+            [[tag != 'o' for tag in tags_list] for tags_list in self.tags_lists]
 
         # # padding  before tokenize the sentence
         # left_padding = [padding_word] * window_size_prev
@@ -55,40 +55,37 @@ class EntityDataSet(Dataset):
         model = Word2Vec(sentences=self.words_lists, vector_size=vector_size, window=5, min_count=1, workers=1, epochs=1)
         model.save("word2vec.model") #  model.wv is the embedding
 
-
-        # Create labeled data from the tokenizer
-
-
-        self.vocabulary_size = len(self.tokenizer.vocabulary_)
-        self.items = []
         # as if we have self.tokenized_words:
 
         # unique dict words to embedd
         words = [item for sublist in self.words_lists for item in sublist]
         embeddings = model.wv[words]
-
-        dict_words2embedd = {}
+        tags = [item for sublist in self.bin_tags_lists for item in sublist]
+        self.dict_words2embedd = {}
+        self.dict_words2tags = {}
+        self.dict_idx2tuple = {}   # the main dict - tuple of tag and embedding
+        self.dict_words2tuple = {}
         for idx, word in enumerate(words):
-            if word not in dict_words2embedd.keys():
-                dict_words2embedd[word] = embeddings[idx, :]
+            if word not in self.dict_words2embedd.keys():
+                # assumption : for 2 identical words - same tag
+                self.dict_words2tags[word] = tags[idx]
+                self.dict_words2embedd[word] = embeddings[idx, :]
+                # dict_embedd2tags[embeddings[idx, :]] = tags[idx]
+                self.dict_words2tuple[word] = (embeddings[idx, :], tags[idx])
+                self.dict_idx2tuple[idx] = (embeddings[idx, :], tags[idx])
             else:
                 continue
 
+        print('here')
 
-
-
-        # words_uniq = list(set(words))
-        # embeddings_uniq = model.wv[words_uniq]
-
-        dict_word2embed = {}
-        #
-        # {idx : [tokenized_word for tokenized_word in self.tokenized_words }
 
     def __getitem__(self, item):
-        """
-        param: item index for word
-        """
-        return self.items[item]
+        '''
+
+        :param item: for idx of word in our corpus
+        :return: tuple of (embeddings, tag)
+        '''
+        return self.self.dict_idx2tuple[item]
 
 # class SpamDataSet(Dataset):
 #
