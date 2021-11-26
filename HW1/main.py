@@ -24,14 +24,14 @@ def run_first_model(dataset_train, dataset_dev):
 
 def run_second_model(dataset_train, dataset_dev):
     data_size = dataset_train.__getitem__(0)[0].__len__()
-    batch_size = 100
+    batch_size = 300
     dl_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     dl_dev = DataLoader(dataset_dev, batch_size=batch_size, shuffle=True)
-    num_epochs = 30
+    num_epochs = 100
 
     second_model = Second_model(inputSize=data_size, outputSize=1)
     loss_fn_string = "binary_cross_entropy"
-    optimizer = torch.optim.SGD(second_model.parameters(), lr=0.01)
+    optimizer = torch.optim.Adam(second_model.parameters(), lr=0.1)
     trainer = Trainer(model=second_model, loss_fn_string=loss_fn_string, optimizer=optimizer, device=None)
 
     trainer.fit(dl_train=dl_train, dl_dev=dl_dev, num_epochs=num_epochs)

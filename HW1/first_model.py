@@ -13,7 +13,6 @@ from sklearn.svm import SVC
 class First_Model():
     def __init__(self, refit='f1', Classifier='rbf', n_splits=3):
         '''
-
         :param refit:
         :param Classifier:
         :param n_splits:
