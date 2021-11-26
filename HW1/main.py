@@ -7,15 +7,18 @@ from trainer import Trainer
 from torch.utils.data import DataLoader
 
 
-def run_first_model(dataset_train):
-    # first model - Classic
+def run_first_model(dataset_train, dataset_dev):
+    # first model - train
     first_model = First_Model()
     x_train = list(dataset_train.dict_words2embedd.values())
     y_train = list(dataset_train.dict_words2tags.values())
-    first_model.train(x_train, y_train)
+    best_clf = first_model.train(x_train, y_train)
+    # eval on dev
+    x_dev = list(dataset_dev.dict_words2embedd.values())
+    y_dev = list(dataset_dev.dict_words2tags.values())
+    y_prob, y_pred = first_model.test(x_dev)
+    first_model.model_performance(x_dev, y_dev, y_pred, y_prob, best_clf)
 
-    eval1 = first_model.eval(x_train, y_train)
-    print("eval1: ", eval1)
     print("done")
 
 
@@ -41,5 +44,5 @@ if __name__ == '__main__':
     dataset_train = dataset.EntityDataSet(train_path)
     dataset_dev = dataset.EntityDataSet(dev_path)
 
-    # run_first_model(dataset_train)
-    run_second_model(dataset_train, dataset_dev)
+    run_first_model(dataset_train, dataset_dev)
+    # run_second_model(dataset_train, dataset_dev)

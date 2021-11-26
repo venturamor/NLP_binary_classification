@@ -3,8 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.metrics import log_loss, plot_confusion_matrix, roc_auc_score, plot_roc_curve
-from sklearn.metrics import confusion_matrix
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 
@@ -22,8 +23,10 @@ class First_Model():
         verbose = 0
         skf = StratifiedKFold(n_splits=n_splits, random_state=15, shuffle=True)
         svc = SVC(probability=True)
-        C = np.array([0.01, 1, 10, 100])
-        pipe = Pipeline(steps=[('svm', svc)])
+        # C = np.array([0.01, 1, 10, 100])
+        C = np.array([0.01])
+        pipe = Pipeline(steps=[('scaler', StandardScaler()), ('svm', svc)])
+        # pipe = Pipeline(steps=[StandardScaler(), ('svm', svc)])
         if Classifier == 'linear':
             # self.clf = svm
             self.clf = GridSearchCV(estimator=pipe,
@@ -34,8 +37,8 @@ class First_Model():
         if Classifier == 'rbf' or Classifier == 'poly':
             self.clf = GridSearchCV(estimator=pipe,
                                param_grid={'svm__kernel': [Classifier], 'svm__C': C, 'svm__degree': [3],
-                                           'svm__gamma': ['auto', 'scale']},
-                               scoring=['accuracy', 'f1', 'recall', 'roc_auc'],  # 'precision'
+                                           'svm__gamma': ['auto']},  # , 'scale'
+                               scoring=['accuracy', 'f1'],  # , 'precision', 'recall', 'roc_auc'],
                                cv=skf, refit=refit, verbose=verbose, return_train_score=True)
             clf_type = [Classifier, 'scale']
 
@@ -50,7 +53,7 @@ class First_Model():
         '''
         self.clf.fit(x_train, y_train)
         self.best_clf = self.clf.best_estimator_
-        print('train evaluation - score: ', eval(self, x_eval=x_train, y_eval=y_train))
+        print('train evaluation - f1 score: ', self.eval(x_eval=x_train, y_eval=y_train))
         return self.best_clf
 
 
@@ -66,20 +69,19 @@ class First_Model():
 
     def eval(self, x_eval, y_eval):
         '''
-
         :param x_eval:
         :param y_eval:
-        :return:
+        :return: score (by refit) of model over data
         '''
         # return self.clf.score(x_eval, y_eval)
         return self.best_clf.score(x_eval, y_eval)
 
 
 #         model_performance(best_svm, X_test, y_test, y_pred_test, y_pred_proba_test, Classifier)
-    def model_performance(model, X_test, y_test, y_pred_test, y_pred_proba_test, Classifier):
+    def model_performance(self, X_test, y_test, y_pred_test, y_pred_proba_test, clf):
         """
         confusion matrix and statistics of the classifier
-        :param Classifier : trained classifier
+        :param clf : trained classifier
         :param y_pred_test, y_pred_proba_test : prediction set
         :param  X_test, y_test: test set
         :return: confusion matrix plot and statistics printed
@@ -89,8 +91,15 @@ class First_Model():
         calc_FN = lambda y_true, y_pred: confusion_matrix(y_true, y_pred)[1, 0]
         calc_TP = lambda y_true, y_pred: confusion_matrix(y_true, y_pred)[1, 1]
 
-        plot_confusion_matrix(model, X_test, y_test, cmap=plt.cm.Blues)
+        plot_confusion_matrix(clf, X_test, y_test, cmap=plt.cm.Blues)
         plt.show()
+
+        #
+        cm = confusion_matrix(y_test, y_pred_test, labels=clf.classes_)
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
+        disp.plot()
+        plt.show()
+        #
 
         TN = calc_TN(y_test, y_pred_test)
         FP = calc_FP(y_test, y_pred_test)
@@ -102,7 +111,7 @@ class First_Model():
         NPV = TN / (TN + FN)
         Acc = (TP + TN) / (TP + TN + FP + FN)
         F1 = (2 * Se * PPV) / (Se + PPV)
-        print(Classifier, ':')
+        print(clf, ':')
         print('Sensitivity is {:.2f} \nSpecificity is {:.2f} \nPPV is {:.2f} \nNPV is {:.2f} \nAccuracy is {:.2f} \n'
               'F1 is {:.2f} '.format(
             Se, Sp, PPV, NPV, Acc, F1))
