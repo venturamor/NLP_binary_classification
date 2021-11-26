@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 
 
 def run_first_model(dataset_train):
-    # first model
+    # first model - run
     first_model = First_Model()
     x_train = list(dataset_train.dict_words2embedd.values())
     y_train = list(dataset_train.dict_words2tags.values())
