@@ -65,6 +65,7 @@ class EntityDataSet(Dataset):
         self.dict_words2tags = {}
         self.dict_idx2tuple = {}   # the main dict - tuple of tag and embedding
         self.dict_words2tuple = {}
+        dict_index = 0
         for idx, word in enumerate(words):
             if word not in self.dict_words2embedd.keys():
                 # assumption : for 2 identical words - same tag
@@ -72,12 +73,10 @@ class EntityDataSet(Dataset):
                 self.dict_words2embedd[word] = embeddings[idx, :]
                 # dict_embedd2tags[embeddings[idx, :]] = tags[idx]
                 self.dict_words2tuple[word] = (embeddings[idx, :], tags[idx])
-                self.dict_idx2tuple[idx] = (embeddings[idx, :], tags[idx])
+                self.dict_idx2tuple[dict_index] = (embeddings[idx, :], tags[idx])
+                dict_index += 1
             else:
                 continue
-
-        print('here')
-
 
     def __getitem__(self, item):
         '''
@@ -85,7 +84,11 @@ class EntityDataSet(Dataset):
         :param item: for idx of word in our corpus
         :return: tuple of (embeddings, tag)
         '''
-        return self.self.dict_idx2tuple[item]
+        return self.dict_idx2tuple[item]
+
+    def __len__(self):
+        return self.dict_idx2tuple.__len__() - 1
+
 
 # class SpamDataSet(Dataset):
 #
