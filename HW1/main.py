@@ -17,6 +17,8 @@ def run_first_model(dataset_train, dataset_dev):
     x_dev = list(dataset_dev.dict_words2embedd.values())
     y_dev = list(dataset_dev.dict_words2tags.values())
     y_prob, y_pred = first_model.test(x_dev)
+
+    first_model.eval(x_dev, y_dev)
     first_model.model_performance(x_dev, y_dev, y_pred, y_prob, best_clf)
 
     print("done")

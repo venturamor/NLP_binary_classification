@@ -18,6 +18,8 @@ class First_Model():
         :param n_splits:
         '''
         # self.clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
+        # Pipeline(steps=[('scaler', StandardScaler()),
+        #                 ('svm', SVC(C=100.0, gamma='auto', probability=True))])
 
         verbose = 0
         skf = StratifiedKFold(n_splits=n_splits, random_state=15, shuffle=True)
@@ -37,7 +39,7 @@ class First_Model():
             self.clf = GridSearchCV(estimator=pipe,
                                param_grid={'svm__kernel': [kernel], 'svm__C': C, 'svm__degree': [3],
                                            'svm__gamma': ['auto']},  # , 'scale'
-                               scoring=['accuracy', 'f1'],  # , 'precision', 'recall', 'roc_auc'],
+                               scoring=['f1', 'accuracy'],  # , 'precision', 'recall', 'roc_auc'],
                                cv=skf, refit=refit, verbose=verbose, return_train_score=True)
             clf_type = [kernel, 'scale']
 
@@ -73,10 +75,11 @@ class First_Model():
         :return: score (by refit) of model over data
         '''
         # return self.clf.score(x_eval, y_eval)
-        return self.best_clf.score(x_eval, y_eval)
+        # return self.best_clf.score(x_eval, y_eval)
+        score = self.best_clf.score(x_eval, y_eval)
+        print(' eval score: ', score)
+        return score
 
-
-#         model_performance(best_svm, X_test, y_test, y_pred_test, y_pred_proba_test, Classifier)
     def model_performance(self, X_test, y_test, y_pred_test, y_pred_proba_test, clf):
         """
         confusion matrix and statistics of the classifier
@@ -104,14 +107,20 @@ class First_Model():
         FP = calc_FP(y_test, y_pred_test)
         FN = calc_FN(y_test, y_pred_test)
         TP = calc_TP(y_test, y_pred_test)
-        Se = TP / (TP + FN)
+        Se = TP / (TP + FN)  # recall
         Sp = TN / (TN + FP)
-        PPV = TP / (TP + FP)
+        PPV = TP / (TP + FP)  # percision
         NPV = TN / (TN + FN)
         Acc = (TP + TN) / (TP + TN + FP + FN)
         F1 = (2 * Se * PPV) / (Se + PPV)
+
         print(clf, ':')
-        print('Sensitivity is {:.2f} \nSpecificity is {:.2f} \nPPV is {:.2f} \nNPV is {:.2f} \nAccuracy is {:.2f} \n'
-              'F1 is {:.2f} '.format(
-            Se, Sp, PPV, NPV, Acc, F1))
+
+        print('Sensitivity is {:.2f} \n'
+              'Specificity is {:.2f} \n'
+              'PPV is {:.2f} \n'
+              'NPV is {:.2f} \n'
+              'Accuracy is {:.2f} \n'
+              'F1 is {:.2f} '.format(Se, Sp, PPV, NPV, Acc, F1))
+
         print('AUROC is {:.3f}'.format(roc_auc_score(y_test, y_pred_proba_test[:, 1])))
