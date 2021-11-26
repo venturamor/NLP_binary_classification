@@ -1,17 +1,58 @@
 import pandas as pd
 import numpy as np
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import log_loss, plot_confusion_matrix, roc_auc_score, plot_roc_curve
+from sklearn.metrics import confusion_matrix
+from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 
 
 class First_Model():
-    def __init__(self):
+    def __init__(self, refit='f1', Classifier='rbf', n_splits=3):
+        '''
 
-        self.clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
+        :param refit:
+        :param Classifier:
+        :param n_splits:
+        '''
+        # self.clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
+
+        verbose = 0
+        skf = StratifiedKFold(n_splits=n_splits, random_state=15, shuffle=True)
+        svc = SVC(probability=True)
+        C = np.array([0.01, 1, 10, 100])
+        pipe = Pipeline(steps=[('svm', svc)])
+        if Classifier == 'linear':
+            # self.clf = svm
+            self.clf = GridSearchCV(estimator=pipe,
+                               param_grid={'svm__kernel': [Classifier], 'svm__C': C},
+                               scoring=['accuracy', 'f1', 'precision', 'recall', 'roc_auc'],
+                               cv=skf, refit=refit, verbose=verbose, return_train_score=True)
+            clf_type = ['linear']
+        if Classifier == 'rbf' or Classifier == 'poly':
+            self.clf = GridSearchCV(estimator=pipe,
+                               param_grid={'svm__kernel': [Classifier], 'svm__C': C, 'svm__degree': [3],
+                                           'svm__gamma': ['auto', 'scale']},
+                               scoring=['accuracy', 'f1', 'recall', 'roc_auc'],  # 'precision'
+                               cv=skf, refit=refit, verbose=verbose, return_train_score=True)
+            clf_type = [Classifier, 'scale']
+
+        self.best_clf = None
 
     def train(self, x_train, y_train):
+        '''
+
+        :param x_train:
+        :param y_train:
+        :return:
+        '''
         self.clf.fit(x_train, y_train)
+        self.best_clf = self.clf.best_estimator_
+        print('train evaluation - score: ', eval(self, x_eval=x_train, y_eval=y_train))
+        return self.best_clf
+
 
     def test(self, x_test):
         '''
@@ -19,56 +60,50 @@ class First_Model():
         :param x_test:
         :return: (prob, pred)
         '''
-        return self.clf.predict_proba(x_test), self.clf.predict(x_test)
+        # return self.clf.predict_proba(x_test), self.clf.predict(x_test)
+        return self.best_clf.predict_proba(x_test), self.best_clf.predict(x_test)
 
 
     def eval(self, x_eval, y_eval):
-        return self.clf.score(x_eval, y_eval)
+        '''
+
+        :param x_eval:
+        :param y_eval:
+        :return:
+        '''
+        # return self.clf.score(x_eval, y_eval)
+        return self.best_clf.score(x_eval, y_eval)
 
 
+#         model_performance(best_svm, X_test, y_test, y_pred_test, y_pred_proba_test, Classifier)
+    def model_performance(model, X_test, y_test, y_pred_test, y_pred_proba_test, Classifier):
+        """
+        confusion matrix and statistics of the classifier
+        :param Classifier : trained classifier
+        :param y_pred_test, y_pred_proba_test : prediction set
+        :param  X_test, y_test: test set
+        :return: confusion matrix plot and statistics printed
+        """
+        calc_TN = lambda y_true, y_pred: confusion_matrix(y_true, y_pred)[0, 0]
+        calc_FP = lambda y_true, y_pred: confusion_matrix(y_true, y_pred)[0, 1]
+        calc_FN = lambda y_true, y_pred: confusion_matrix(y_true, y_pred)[1, 0]
+        calc_TP = lambda y_true, y_pred: confusion_matrix(y_true, y_pred)[1, 1]
 
-    # def C_Support_Vector_Classification(X_train, X_test, y_train, y_test, n_splits=5, Classifier='rbf'):
-    #     """
-    #     k-cross-validation using SVM and classifier building
-    #     :param X_train, X_test, Y_train, y_test: train-test splitted data
-    #     :param n_splits : number of splitted segmnets (validation and test) from train set
-    #     :param Classifier : kernel for SVM
-    #     :return: best_svm (classifier)
-    #              + plots model performance (confusion matrix) + radar plot
-    #     """
-    #     verbose = 0
-    #     skf = StratifiedKFold(n_splits=n_splits, random_state=15, shuffle=True)
-    #     svc = SVC(probability=True)
-    #     C = np.array([0.01, 1, 10, 100])
-    #     pipe = Pipeline(steps=[('svm', svc)])
-    #     if Classifier == 'linear':
-    #         svm = GridSearchCV(estimator=pipe,
-    #                            param_grid={'svm__kernel': [Classifier], 'svm__C': C},
-    #                            scoring=['accuracy', 'f1', 'precision', 'recall', 'roc_auc'],
-    #                            cv=skf, refit='roc_auc', verbose=verbose, return_train_score=True)
-    #         clf_type = ['linear']
-    #     if Classifier == 'rbf' or Classifier == 'poly':
-    #         svm = GridSearchCV(estimator=pipe,
-    #                            param_grid={'svm__kernel': [Classifier], 'svm__C': C, 'svm__degree': [3],
-    #                                        'svm__gamma': ['auto', 'scale']},
-    #                            scoring=['accuracy', 'f1', 'precision', 'recall', 'roc_auc'],
-    #                            cv=skf, refit='roc_auc', verbose=verbose, return_train_score=True)
-    #         clf_type = [Classifier, 'scale']
-    #
-    #     svm.fit(X_train, y_train)
-    #
-    #     best_svm = svm.best_estimator_
-    #     print(best_svm)
-    #
-    #     y_pred_test = best_svm.predict(X_test)
-    #     y_pred_proba_test = best_svm.predict_proba(X_test)
-    #     model_performance(best_svm, X_test, y_test, y_pred_test, y_pred_proba_test, Classifier)
-    #
-    #     # '''
-    #     # Radar function:
-    #     plot_radar_svm(svm, clf_type)
-    #     plt.grid(False)
-    #     # '''
-    #
-    #     print('C Support Vector Classification -> Done')
-    #     return best_svm
+        plot_confusion_matrix(model, X_test, y_test, cmap=plt.cm.Blues)
+        plt.show()
+
+        TN = calc_TN(y_test, y_pred_test)
+        FP = calc_FP(y_test, y_pred_test)
+        FN = calc_FN(y_test, y_pred_test)
+        TP = calc_TP(y_test, y_pred_test)
+        Se = TP / (TP + FN)
+        Sp = TN / (TN + FP)
+        PPV = TP / (TP + FP)
+        NPV = TN / (TN + FN)
+        Acc = (TP + TN) / (TP + TN + FP + FN)
+        F1 = (2 * Se * PPV) / (Se + PPV)
+        print(Classifier, ':')
+        print('Sensitivity is {:.2f} \nSpecificity is {:.2f} \nPPV is {:.2f} \nNPV is {:.2f} \nAccuracy is {:.2f} \n'
+              'F1 is {:.2f} '.format(
+            Se, Sp, PPV, NPV, Acc, F1))
+        print('AUROC is {:.3f}'.format(roc_auc_score(y_test, y_pred_proba_test[:, 1])))
