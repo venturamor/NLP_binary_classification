@@ -11,10 +11,10 @@ from sklearn.svm import SVC
 
 
 class First_Model():
-    def __init__(self, refit='f1', Classifier='rbf', n_splits=3):
+    def __init__(self, refit='f1', kernel='rbf', n_splits=3):
         '''
         :param refit:
-        :param Classifier:
+        :param kernel:
         :param n_splits:
         '''
         # self.clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
@@ -22,24 +22,24 @@ class First_Model():
         verbose = 0
         skf = StratifiedKFold(n_splits=n_splits, random_state=15, shuffle=True)
         svc = SVC(probability=True)
-        # C = np.array([0.01, 1, 10, 100])
-        C = np.array([0.01])
+        C = np.array([0.01, 1, 10, 100])
+        # C = np.array([0.01])
         pipe = Pipeline(steps=[('scaler', StandardScaler()), ('svm', svc)])
         # pipe = Pipeline(steps=[StandardScaler(), ('svm', svc)])
-        if Classifier == 'linear':
+        if kernel == 'linear':
             # self.clf = svm
             self.clf = GridSearchCV(estimator=pipe,
-                               param_grid={'svm__kernel': [Classifier], 'svm__C': C},
-                               scoring=['accuracy', 'f1', 'precision', 'recall', 'roc_auc'],
-                               cv=skf, refit=refit, verbose=verbose, return_train_score=True)
+                                    param_grid={'svm__kernel': [kernel], 'svm__C': C},
+                                    scoring=['accuracy', 'f1', 'precision', 'recall', 'roc_auc'],
+                                    cv=skf, refit=refit, verbose=verbose, return_train_score=True)
             clf_type = ['linear']
-        if Classifier == 'rbf' or Classifier == 'poly':
+        if kernel == 'rbf' or kernel == 'poly':
             self.clf = GridSearchCV(estimator=pipe,
-                               param_grid={'svm__kernel': [Classifier], 'svm__C': C, 'svm__degree': [3],
+                               param_grid={'svm__kernel': [kernel], 'svm__C': C, 'svm__degree': [3],
                                            'svm__gamma': ['auto']},  # , 'scale'
                                scoring=['accuracy', 'f1'],  # , 'precision', 'recall', 'roc_auc'],
                                cv=skf, refit=refit, verbose=verbose, return_train_score=True)
-            clf_type = [Classifier, 'scale']
+            clf_type = [kernel, 'scale']
 
         self.best_clf = None
 
@@ -90,10 +90,10 @@ class First_Model():
         calc_FN = lambda y_true, y_pred: confusion_matrix(y_true, y_pred)[1, 0]
         calc_TP = lambda y_true, y_pred: confusion_matrix(y_true, y_pred)[1, 1]
 
-        plot_confusion_matrix(clf, X_test, y_test, cmap=plt.cm.Blues)
-        plt.show()
+        # plot_confusion_matrix(clf, X_test, y_test, cmap=plt.cm.Blues)
+        # plt.show()
 
-        #
+        # confusion matrix
         cm = confusion_matrix(y_test, y_pred_test, labels=clf.classes_)
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
         disp.plot()
