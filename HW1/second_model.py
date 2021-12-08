@@ -1,6 +1,5 @@
 import torch
 
-
 class Second_model(torch.nn.Module):
     def __init__(self, inputSize, outputSize):
         '''

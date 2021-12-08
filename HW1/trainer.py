@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
+from sklearn.metrics import f1_score
 
 
 class Trainer():
@@ -74,3 +75,20 @@ class Trainer():
             acc = self.test_epoch(dl_dev)
             print('epoch {}, loss {}'.format(epoch, loss.item()))
             print('epoch {}, acc {}'.format(epoch, acc))
+
+    def eval(self, dl_dev: DataLoader):
+        """
+        Args:
+            dl_dev:
+
+        Returns: f1_score
+        """
+        f_score = 0
+        for batch_ndx, sample in enumerate(dl_dev):
+            x_dev, y_dev = sample
+            self.model.eval()
+            y_pred = self.model(x_dev)
+            y_pred = (y_pred > 0.5)
+            f1 = f1_score(y_dev, y_pred, average='binary', pos_label=True)
+            f_score += f1
+        return f_score / len(dl_dev)
