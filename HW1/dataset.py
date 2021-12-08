@@ -8,8 +8,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
 
-#
 WORD_2_VEC_PATH = 'word2vec-google-news-300'
+GLOVE_PATH = 'glove-twitter-25'
+embedding_size = 25
+
 GLOVE_PATH = 'glove-twitter-100'
 embedding_size = int(GLOVE_PATH.split('-')[-1])
 
