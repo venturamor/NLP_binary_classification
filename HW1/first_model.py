@@ -11,7 +11,7 @@ from sklearn.svm import SVC
 
 
 class First_Model():
-    def __init__(self, refit='f1', kernel='linear', n_splits=3):
+    def __init__(self, refit='f1', kernel='linear', n_splits=10):
         '''
         :param refit:
         :param kernel:

@@ -11,7 +11,7 @@ import numpy as np
 #
 WORD_2_VEC_PATH = 'word2vec-google-news-300'
 GLOVE_PATH = 'glove-twitter-100'
-embedding_size = 100
+embedding_size = int(GLOVE_PATH.split('-')[-1])
 
 class EntityDataSet(Dataset):
     def __init__(self, file_path, window_size_prev=1, window_size_next=1, tokenizer=None):
@@ -25,10 +25,11 @@ class EntityDataSet(Dataset):
 
         # open and read the file content
         self.file_path = file_path
-        data = open(file_path, "r").read().lower()
+        data = open(file_path, "r").read()
+        data_lower = data.lower()
 
         # prepare the data
-        tagged_sentences = data.split('\n\n')[:-1]
+        tagged_sentences = data_lower.split('\n\n')[:-1]
         tagged_words_lists = [sentence.split('\n') for sentence in tagged_sentences]
 
         self.words_lists = \
@@ -43,33 +44,46 @@ class EntityDataSet(Dataset):
         # right_padding = [padding_word] * window_size_next
         # self.words_lists_with_padding = [left_padding + words_list + right_padding for words_list in self.words_lists]
 
-        # create a list of tokenized sentences
 
-        # TODO: load pre-trained model and only then train on our model
+        # load pre-trained model
 
         # model = gensim.models.Word2Vec.load(GLOVE_PATH)
         # model.build_vocab(self.words_lists, update=True)
         # model.train(self.words_lists, total_examples=model.corpus_count, epochs=model.epochs)
-
-        # TODO: hyper-params of training as input in struct params / *args
-        vector_size = 100  # 50
-        # model = Word2Vec(sentences=self.words_lists, vector_size=vector_size, window=5, min_count=1, workers=1, epochs=1)
-        # model.save("word2vec.model") #  model.wv is the embedding
         print("loading model")
         model = gensim.downloader.load(GLOVE_PATH)
         print("model downloaded")
+
+
+        # train model on our corpus
+        # vector_size = 100  # 50
+        # model = Word2Vec(sentences=self.words_lists, vector_size=vector_size, window=5, min_count=1, workers=1, epochs=1)
+        # model.save("word2vec.model") #  model.wv is the embedding
+
         # as if we have self.tokenized_words:
 
         # unique dict words to embedd
         words = [item for sublist in self.words_lists for item in sublist]
+        # embeddings = model.wv[words]
+
+        # if word is not in vocab - use zeros representation
+        # if word contains  "@" / "http" / "#" - word will be embedded as those symbols
         embeddings = []
+        symbols = ["@", "http", "#"]
         for i, word in enumerate(words):
+            ind_symbol = [ind for ind, x in enumerate([(symbol in word) for symbol in symbols]) if x]
+            if ind_symbol:
+                word = symbols[ind_symbol[0]]
             try:
                 embedding = model[word]
             except KeyError:
-                embedding = torch.zeros(embedding_size)
+                embedding = np.zeros(embedding_size)
             embeddings.append(embedding)
 
+
+        # new embedding with window embedding neighbors
+
+        # dicts
         tags = [item for sublist in self.bin_tags_lists for item in sublist]
         self.dict_words2embedd = {}
         self.dict_words2tags = {}
