@@ -8,6 +8,12 @@ from first_model import First_Model
 from second_model import Second_model
 from trainer import Trainer
 from torch.utils.data import DataLoader
+import gensim
+from gensim import downloader
+
+WORD_2_VEC_PATH = 'word2vec-google-news-300'
+GLOVE_PATH = 'glove-twitter-25'
+embedding_size = int(GLOVE_PATH.split('-')[-1])
 
 
 def run_first_model(dataset_train, dataset_dev):
@@ -60,9 +66,10 @@ def run_second_model(dataset_train, dataset_dev):
     batch_size = 300
     dl_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     dl_dev = DataLoader(dataset_dev, batch_size=batch_size, shuffle=True)
-    num_epochs = 3
+    num_epochs = 10
 
     second_model = Second_model(inputSize=data_size, outputSize=1)
+    print(second_model)
     loss_fn_string = "binary_cross_entropy"
     optimizer = torch.optim.Adam(second_model.parameters(), lr=0.1)
     trainer = Trainer(model=second_model, loss_fn_string=loss_fn_string, optimizer=optimizer, device=None)
@@ -76,8 +83,14 @@ if __name__ == '__main__':
     # load dataset
     train_path = "data/train.tagged"
     dev_path = "data/dev.tagged"
-    dataset_train = dataset.EntityDataSet(train_path)
-    dataset_dev = dataset.EntityDataSet(dev_path)
+
+    print("loading model")
+    model = gensim.downloader.load(GLOVE_PATH)
+    print("model downloaded")
+
+    dataset_train = dataset.EntityDataSet(train_path, model=model)
+    dataset_dev = dataset.EntityDataSet(dev_path, model=model)
     print('done creating datasets')
+
     # run_first_model(dataset_train, dataset_dev)
     run_second_model(dataset_train, dataset_dev)

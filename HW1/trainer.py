@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from sklearn.metrics import f1_score
 
 
-class Trainer():
+class Trainer:
     def __init__(self, model, loss_fn_string, optimizer, device=None):
         """
             Initialize the trainer.
@@ -80,7 +80,6 @@ class Trainer():
         """
         Args:
             dl_dev:
-
         Returns: f1_score
         """
         f_score = 0

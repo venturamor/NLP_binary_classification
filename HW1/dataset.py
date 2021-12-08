@@ -1,21 +1,18 @@
 import torch
 from torch.utils.data import Dataset
 from gensim.models import Word2Vec
-import gensim
-from gensim import downloader
+
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
+
 import numpy as np
 
-
-WORD_2_VEC_PATH = 'word2vec-google-news-300'
 GLOVE_PATH = 'glove-twitter-25'
-embedding_size = 25
-
 embedding_size = int(GLOVE_PATH.split('-')[-1])
 
+
 class EntityDataSet(Dataset):
-    def __init__(self, file_path, window_size_prev=1, window_size_next=1, tokenizer=None):
+    def __init__(self, file_path, model, window_size_prev=1, window_size_next=1, tokenizer=None):
         """
         :param file_path:
         :param tokenizer:
@@ -51,9 +48,6 @@ class EntityDataSet(Dataset):
         # model = gensim.models.Word2Vec.load(GLOVE_PATH)
         # model.build_vocab(self.words_lists, update=True)
         # model.train(self.words_lists, total_examples=model.corpus_count, epochs=model.epochs)
-        print("loading model")
-        model = gensim.downloader.load(GLOVE_PATH)
-        print("model downloaded")
 
 
         # train model on our corpus
