@@ -46,12 +46,13 @@ class EntityDataSet(Dataset):
         # create a list of tokenized sentences
 
         # TODO: load pre-trained model and only then train on our model
+
         # model = gensim.models.Word2Vec.load(GLOVE_PATH)
         # model.build_vocab(self.words_lists, update=True)
         # model.train(self.words_lists, total_examples=model.corpus_count, epochs=model.epochs)
 
         # TODO: hyper-params of training as input in struct params / *args
-        vector_size = 50
+        vector_size = 100  # 50
         model = Word2Vec(sentences=self.words_lists, vector_size=vector_size, window=5, min_count=1, workers=1, epochs=1)
         model.save("word2vec.model") #  model.wv is the embedding
 

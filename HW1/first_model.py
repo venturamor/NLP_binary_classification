@@ -11,7 +11,7 @@ from sklearn.svm import SVC
 
 
 class First_Model():
-    def __init__(self, refit='f1', kernel='rbf', n_splits=3):
+    def __init__(self, refit='f1', kernel='linear', n_splits=3):
         '''
         :param refit:
         :param kernel:
@@ -24,7 +24,7 @@ class First_Model():
         verbose = 0
         skf = StratifiedKFold(n_splits=n_splits, random_state=15, shuffle=True)
         svc = SVC(probability=True)
-        C = np.array([0.01, 1, 10, 100])
+        C = np.array([1.25])  # 1, 1.5, 10, 100])
         # C = np.array([0.01])
         pipe = Pipeline(steps=[('scaler', StandardScaler()), ('svm', svc)])
         # pipe = Pipeline(steps=[StandardScaler(), ('svm', svc)])
@@ -32,15 +32,15 @@ class First_Model():
             # self.clf = svm
             self.clf = GridSearchCV(estimator=pipe,
                                     param_grid={'svm__kernel': [kernel], 'svm__C': C},
-                                    scoring=['accuracy', 'f1', 'precision', 'recall', 'roc_auc'],
+                                    scoring=['f1'],  # , 'accuracy', 'precision', 'recall', 'roc_auc'],
                                     cv=skf, refit=refit, verbose=verbose, return_train_score=True)
             clf_type = ['linear']
         if kernel == 'rbf' or kernel == 'poly':
             self.clf = GridSearchCV(estimator=pipe,
-                               param_grid={'svm__kernel': [kernel], 'svm__C': C, 'svm__degree': [3],
+                                    param_grid={'svm__kernel': [kernel], 'svm__C': C, 'svm__degree': [3],
                                            'svm__gamma': ['auto']},  # , 'scale'
-                               scoring=['f1', 'accuracy'],  # , 'precision', 'recall', 'roc_auc'],
-                               cv=skf, refit=refit, verbose=verbose, return_train_score=True)
+                                    scoring=['f1'],  # , 'accuracy', 'precision', 'recall', 'roc_auc'],
+                                    cv=skf, refit=refit, verbose=verbose, return_train_score=True)
             clf_type = [kernel, 'scale']
 
         self.best_clf = None
