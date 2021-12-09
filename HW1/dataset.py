@@ -40,6 +40,8 @@ class EntityDataSet(Dataset):
             [[tag != 'o' for tag in tags_list] for tags_list in self.tags_lists]
 
         list_updated = self.words_lists
+        # unique dict words to embedd
+        words = [item for sublist in list_updated for item in sublist]
 
         if use_window:
             # padding  before tokenize the sentence
@@ -59,20 +61,23 @@ class EntityDataSet(Dataset):
         # model = Word2Vec(sentences=self.words_lists, vector_size=vector_size, window=5, min_count=1, workers=1, epochs=1)
         # model.save("word2vec.model") #  model.wv is the embedding
 
-        # unique dict words to embedd
-        words = [item for sublist in list_updated for item in sublist]
         # embeddings = model.wv[words]
 
-        embeddings = self.get_embeddings(model, words, padding_word_start, padding_word_end)
+        # list of lists of embeddings
+        embeddings_lists = self.get_embeddings(model, list_updated, padding_word_start, padding_word_end)
         if use_window:
             # embeddings = [np.concatenate([embeddings[idx-1], emb, embeddings[idx+1]]) for idx, emb in enumerate(embeddings[1:-1])]
-            embeddings_ = []
+            new_embeddings_lists = []
             # TODO: fix
-            for idx, emb in enumerate(embeddings[1:-1]):
-                embed1 = np.concatenate([embeddings[idx - 1], emb, embeddings[idx + 1]])
-                embeddings_.append(embed1)
-            embeddings = embeddings_
+            for sentence in embeddings_lists:
+                new_embedding_sentence = []
+                for idx, emb in enumerate(sentence[1:-1]):
+                    embed1 = np.concatenate([sentence[idx - 1], emb, sentence[idx + 1]])
+                    new_embedding_sentence.append(embed1)
+                new_embeddings_lists.append(new_embedding_sentence)
+            embeddings_lists = new_embeddings_lists
 
+        embeddings = [item for sublist in embeddings_lists for item in sublist]
 
 
         # dicts
@@ -83,27 +88,49 @@ class EntityDataSet(Dataset):
         self.dict_words2tuple = {}
         self.define_dicts(words, tags, embeddings)
 
-    def get_embeddings(self, model, words, word_start, word_end):
-        # if word is not in vocab - use zeros representation
-        # if word contains  "@" / "http" / "#" - word will be embedded as those symbols
-        embeddings = []
-        symbols = ["@", "http", "#"]
-        for i, word in enumerate(words):
-            ind_symbol = [ind for ind, x in enumerate([(symbol in word) for symbol in symbols]) if x]
-            if ind_symbol:
-                word = symbols[ind_symbol[0]]
-            try:
-                embedding = model[word]
-            except KeyError:
-                if word == word_start:
-                    embedding = 0.1 * np.zeros(embedding_size)
-                elif word == word_end:
-                    embedding = 0.9 * np.ones(embedding_size)
-                else:
-                    embedding = np.zeros(embedding_size)
-            embeddings.append(embedding)
+    def get_embeddings(self, model, words_lists, word_start, word_end):
 
+        symbols = ["@", "http", "#"]
+        embeddings = []
+        for sentence in words_lists:
+            embedd_sentence = []
+            for word in sentence:
+                ind_symbol = [ind for ind, x in enumerate([(symbol in word) for symbol in symbols]) if x]
+                if ind_symbol:
+                    word = symbols[ind_symbol[0]]
+                try:
+                    embedding = model[word]
+                except KeyError:
+                    if word == word_start:
+                        embedding = 0.1 * np.zeros(embedding_size)
+                    elif word == word_end:
+                        embedding = 0.9 * np.ones(embedding_size)
+                    else:
+                        embedding = np.zeros(embedding_size)
+                embedd_sentence.append(embedding)
+            embeddings.append(embedd_sentence)
         return embeddings
+
+        # # if word is not in vocab - use zeros representation
+        # # if word contains  "@" / "http" / "#" - word will be embedded as those symbols
+        # embeddings = []
+        # symbols = ["@", "http", "#"]
+        # for i, word in enumerate(words):
+        #     ind_symbol = [ind for ind, x in enumerate([(symbol in word) for symbol in symbols]) if x]
+        #     if ind_symbol:
+        #         word = symbols[ind_symbol[0]]
+        #     try:
+        #         embedding = model[word]
+        #     except KeyError:
+        #         if word == word_start:
+        #             embedding = 0.1 * np.zeros(embedding_size)
+        #         elif word == word_end:
+        #             embedding = 0.9 * np.ones(embedding_size)
+        #         else:
+        #             embedding = np.zeros(embedding_size)
+        #     embeddings.append(embedding)
+        #
+        # return embeddings
 
     def define_dicts(self, words, tags, embeddings):
         dict_index = 0

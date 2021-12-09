@@ -92,5 +92,5 @@ if __name__ == '__main__':
     dataset_dev = dataset.EntityDataSet(dev_path, model=model)
     print('done creating datasets')
 
-    # run_first_model(dataset_train, dataset_dev)
-    run_second_model(dataset_train, dataset_dev)
+    run_first_model(dataset_train, dataset_dev)
+    # run_second_model(dataset_train, dataset_dev)
