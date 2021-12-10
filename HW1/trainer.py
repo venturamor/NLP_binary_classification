@@ -77,14 +77,14 @@ class Trainer:
                 loss.backward()
                 self.optimizer.step()
 
-            acc = self.eval(dl_dev)
+            f1 = self.eval(dl_dev)
             print('epoch {}, loss {}'.format(epoch, loss.item()))
-            print('epoch {}, f1 {}'.format(epoch, acc))
+            print('epoch {}, f1 {}'.format(epoch, f1))
 
     def eval(self, dl_dev: DataLoader):
         """
         Args:
-            dl_dev:
+            dl_dev: dataloader for data to be evaluated
         Returns: f1_score
         """
         f_score = 0

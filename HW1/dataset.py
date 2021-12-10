@@ -7,11 +7,6 @@ import pandas as pd
 import numpy as np
 
 
-WORD_2_VEC_PATH = 'word2vec-google-news-300'
-GLOVE_PATH = 'glove-twitter-25'
-embedding_size = int(GLOVE_PATH.split('-')[-1])
-
-
 class ListDataSet(Dataset):
     def __init__(self, data_list, label_list):
         self.data = data_list
@@ -34,7 +29,7 @@ class ListDataSet(Dataset):
 
 
 class EntityDataSet(Dataset):
-    def __init__(self, file_path, model, use_window=True, window_size=1):
+    def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
         """
         :param file_path:
         :param wind_size: prev + curr word + next window
@@ -85,7 +80,7 @@ class EntityDataSet(Dataset):
         # embeddings = model.wv[words]
 
         # list of lists of embeddings
-        embeddings_lists = self.get_embeddings(model, list_updated, padding_word_start, padding_word_end)
+        embeddings_lists = self.get_embeddings(model, list_updated, padding_word_start, padding_word_end, embedding_size)
         if use_window:
             # embeddings = [np.concatenate([embeddings[idx-1], emb, embeddings[idx+1]]) for idx, emb in enumerate(embeddings[1:-1])]
             new_embeddings_lists = []
@@ -108,7 +103,7 @@ class EntityDataSet(Dataset):
         self.define_dicts(words, tags, embeddings)
 
 
-    def get_embeddings(self, model, words_lists, word_start, word_end):
+    def get_embeddings(self, model, words_lists, word_start, word_end, embedding_size):
         """
 
         :param model:

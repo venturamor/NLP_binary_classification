@@ -14,7 +14,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import TensorDataset
 
 WORD_2_VEC_PATH = 'word2vec-google-news-300'
-GLOVE_PATH = 'glove-twitter-25'
+GLOVE_PATH = 'glove-twitter-100'
 embedding_size = int(GLOVE_PATH.split('-')[-1])
 
 
@@ -91,42 +91,27 @@ def run_second_model(dataset_train, dataset_dev):
     :param dataset_dev:
     :return:
     """
-    output_size = 2
 
-    # train
+    # first model - train
+    first_model = First_Model()
     x_train = list(dataset_train.dict_words2embedd.values())
     y_train = list(dataset_train.dict_words2tags.values())
 
-    # train data imbalance fix
+    # data imbalance fix
+
     new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
-
-    # dev
-    x_dev = list(dataset_dev.dict_words2embedd.values())
-    y_dev = list(dataset_dev.dict_words2tags.values())
-
-
-    # one_hot
-    y_train_one_hot = [[0, 1] if x else [1, 0] for x in new_y_train_cpy]
-    y_dev_one_hot = [[0, 1] if x else [1, 0] for x in y_dev]
-
-    # dataset
-    dataset_train = dataset.ListDataSet(new_x_train_cpy, y_train_one_hot)
-    dataset_dev = dataset.ListDataSet(x_dev, y_dev_one_hot)
-
-    # dataset_dev = dataset.ListDataSet(x_dev, y_dev)
-    # dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
+    dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
     # Hyperparameters
-
-    batch_size = 50
+    batch_size = 100
     num_epochs = 20
-    learning_rate = 0.01
+    learning_rate = 0.0001
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
 
     dl_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     dl_dev = DataLoader(dataset_dev, batch_size=batch_size, shuffle=True)
 
-    second_model = Second_model(inputSize=data_size, outputSize=output_size)
+    second_model = Second_model(inputSize=data_size, outputSize=2)
     print(second_model)
     optimizer = torch.optim.Adam(second_model.parameters(), lr=learning_rate)
     trainer = Trainer(model=second_model, optimizer=optimizer, device=None)
@@ -137,6 +122,9 @@ def run_second_model(dataset_train, dataset_dev):
 
 
 if __name__ == '__main__':
+
+    GLOVE_PATH = 'glove-twitter-100'
+    embedding_size = int(GLOVE_PATH.split('-')[-1])
     # load dataset
     train_path = "data/train.tagged"
     dev_path = "data/dev.tagged"
@@ -145,8 +133,8 @@ if __name__ == '__main__':
     model = gensim.downloader.load(GLOVE_PATH)
     print("model downloaded")
 
-    dataset_train = dataset.EntityDataSet(train_path, model=model)
-    dataset_dev = dataset.EntityDataSet(dev_path, model=model)
+    dataset_train = dataset.EntityDataSet(train_path, model=model, embedding_size=embedding_size)
+    dataset_dev = dataset.EntityDataSet(dev_path, model=model, embedding_size=embedding_size)
     print('done creating datasets')
 
     # run_first_model(dataset_train, dataset_dev)
