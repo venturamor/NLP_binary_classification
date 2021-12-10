@@ -12,6 +12,28 @@ GLOVE_PATH = 'glove-twitter-25'
 embedding_size = int(GLOVE_PATH.split('-')[-1])
 
 
+class ListDataSet(Dataset):
+    def __init__(self, data_list, label_list):
+        self.data = data_list
+        self.label = label_list
+
+
+    def __getitem__(self, item):
+        '''
+
+        :param item: for idx of word in our corpus
+        :return: tuple of (embeddings, tag)
+        '''
+        return self.data[item], self.label[item]
+
+    def __len__(self):
+        """
+
+        :return:
+        """
+        return self.data.__len__()
+
+
 class EntityDataSet(Dataset):
     def __init__(self, file_path, model, use_window=True, window_size=1):
         """

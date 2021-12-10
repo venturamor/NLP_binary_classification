@@ -100,7 +100,7 @@ def run_second_model(dataset_train, dataset_dev):
     # data imbalance fix
 
     new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
-    dataset_train = Dataset(torch.tensor(new_x_train_cpy), torch.tensor(new_y_train_cpy))
+    dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
 
 
 
