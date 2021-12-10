@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 
 
+
 class Second_model(torch.nn.Module):
     def __init__(self, inputSize, outputSize, hiddenSize=300):
 
@@ -16,12 +17,14 @@ class Second_model(torch.nn.Module):
         self.fc2 = torch.nn.Linear(hiddenSize, outputSize)
         self.fc2 = torch.nn.Linear(hiddenSize, outputSize)
 
-        net = torch.nn.Sequential(torch.nn.Linear(2, 2), torch.nn.Linear(2, 2))
-        net.apply(self.init_weights)
+        # net = torch.nn.Sequential(torch.nn.Linear(2, 2), torch.nn.Linear(2, 2))
+        # net.apply(self.init_weights)
 
     def forward(self, x):
         out = self.fc1(x.float())
+        # out = torch.nn.BatchNorm1d(out.size())
         out = F.relu(out)
+        # out = torch.nn.Dropout(p=0.1)
         out = self.fc2(out)
         out = F.relu(out)
         out = F.softmax(out, dim=1)

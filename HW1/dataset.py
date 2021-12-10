@@ -23,7 +23,7 @@ class ListDataSet(Dataset):
         :param item: for idx of word in our corpus
         :return: tuple of (embeddings, tag)
         '''
-        return self.data[item], self.label[item]
+        return self.data[item], np.array(self.label[item]) #self.label[item]
 
     def __len__(self):
         """

@@ -91,28 +91,42 @@ def run_second_model(dataset_train, dataset_dev):
     :param dataset_dev:
     :return:
     """
+    output_size = 2
 
-    # first model - train
-    first_model = First_Model()
+    # train
     x_train = list(dataset_train.dict_words2embedd.values())
     y_train = list(dataset_train.dict_words2tags.values())
 
-    # data imbalance fix
-
+    # train data imbalance fix
     new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
-    dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
+
+    # dev
+    x_dev = list(dataset_dev.dict_words2embedd.values())
+    y_dev = list(dataset_dev.dict_words2tags.values())
+
+
+    # one_hot
+    y_train_one_hot = [[0, 1] if x else [1, 0] for x in new_y_train_cpy]
+    y_dev_one_hot = [[0, 1] if x else [1, 0] for x in y_dev]
+
+    # dataset
+    dataset_train = dataset.ListDataSet(new_x_train_cpy, y_train_one_hot)
+    dataset_dev = dataset.ListDataSet(x_dev, y_dev_one_hot)
+
+    # dataset_dev = dataset.ListDataSet(x_dev, y_dev)
+    # dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
     # Hyperparameters
 
     batch_size = 50
     num_epochs = 20
-    learning_rate = 0.1
+    learning_rate = 0.01
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
 
     dl_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     dl_dev = DataLoader(dataset_dev, batch_size=batch_size, shuffle=True)
 
-    second_model = Second_model(inputSize=data_size, outputSize=2)
+    second_model = Second_model(inputSize=data_size, outputSize=output_size)
     print(second_model)
     optimizer = torch.optim.Adam(second_model.parameters(), lr=learning_rate)
     trainer = Trainer(model=second_model, optimizer=optimizer, device=None)
