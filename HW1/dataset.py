@@ -3,7 +3,7 @@ from torch.utils.data import Dataset
 from gensim.models import Word2Vec
 
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
+# from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
 
@@ -77,7 +77,6 @@ class EntityDataSet(Dataset):
             embeddings_lists = new_embeddings_lists
 
         embeddings = [item for sublist in embeddings_lists for item in sublist]
-
 
         # dicts
         tags = [item for sublist in self.bin_tags_lists for item in sublist]

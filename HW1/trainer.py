@@ -6,16 +6,14 @@ from sklearn.metrics import f1_score
 
 
 class Trainer:
-    def __init__(self, model, loss_fn_string, optimizer, device=None):
+    def __init__(self, model, optimizer, device=None):
         """
             Initialize the trainer.
             :param model: Instance of the model to train.
-            :param loss_fn: The loss function to evaluate with.
             :param optimizer: The optimizer to train with.
             :param device: torch.device to run training on (CPU or GPU).
         """
         self.model = model
-        self.loss_fn_string = loss_fn_string
         self.optimizer = optimizer
         self.device = device
 
@@ -25,15 +23,14 @@ class Trainer:
     def test_batch(self, batch):
         x_train, y_train = batch
         pred = self.model(x_train)
-        binary_pred = [pred > 0.5]
-        num_correct = (binary_pred[0].reshape(-1) == y_train).sum().item()
+        binary_pred = torch.max(pred)
+        num_correct = (binary_pred == y_train).sum().item()
         acc = (num_correct * 100) / y_train.size()[0]
         return acc
 
     def test_epoch(self, dl_dev: DataLoader):
         """
         Evaluate model once over a test set (single epoch).
-        :param dl_test: DataLoader for the test set.
         :return: An EpochResult for the epoch.
         """
         with torch.no_grad():
@@ -61,16 +58,18 @@ class Trainer:
             # Forward pass: Compute predicted y by passing
             # x to the model
             for batch_ndx, sample in enumerate(dl_train):
+                self.optimizer.zero_grad()
                 x_train, y_train = sample
-                y_pred = self.model(x_train)
+                y_prob = self.model(x_train)
+                # print("x_train: ", x_train, " y_dev: ", y_pred, " y_pred: ", y_pred)
                 # Compute and print loss
-                if self.loss_fn_string == "binary_cross_entropy":  # TODO fix
-                    loss = F.binary_cross_entropy(y_pred.reshape(-1), y_train.float())
-                    # Zero gradients, perform a backward pass,
-                    # and update the weights.
-                    self.optimizer.zero_grad()
-                    loss.backward()
-                    self.optimizer.step()
+                # if self.loss_fn_string == "binary_cross_entropy":
+                # TODO: let the model get the loss
+                loss = torch.nn.functional.nll_loss(y_prob, y_train.long())
+                # Zero gradients, perform a backward pass,
+                # and update the weights.
+                loss.backward()
+                self.optimizer.step()
 
             acc = self.test_epoch(dl_dev)
             print('epoch {}, loss {}'.format(epoch, loss.item()))
@@ -84,10 +83,11 @@ class Trainer:
         """
         f_score = 0
         for batch_ndx, sample in enumerate(dl_dev):
-            x_dev, y_dev = sample
             self.model.eval()
+            x_dev, y_dev = sample
             y_pred = self.model(x_dev)
-            y_pred = (y_pred > 0.5)
+            y_pred = y_pred[:, 0] < y_pred[:, 1]
+            # print("x_dev: ", x_dev, " y_dev: ", y_dev, " y_pred: ", y_pred)
             f1 = f1_score(y_dev, y_pred, average='binary', pos_label=True)
             f_score += f1
         return f_score / len(dl_dev)

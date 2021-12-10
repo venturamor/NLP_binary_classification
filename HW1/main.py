@@ -10,6 +10,8 @@ from trainer import Trainer
 from torch.utils.data import DataLoader
 import gensim
 from gensim import downloader
+from torch.utils.data import Dataset
+from torch.utils.data import TensorDataset
 
 WORD_2_VEC_PATH = 'word2vec-google-news-300'
 GLOVE_PATH = 'glove-twitter-25'
@@ -57,7 +59,7 @@ def run_first_model(dataset_train, dataset_dev):
 
     # data imbalance fix
 
-    new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train);
+    new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
 
     # shuffle
     zipped_ = list(zip(new_x_train_cpy, new_y_train_cpy))
@@ -85,22 +87,33 @@ def run_first_model(dataset_train, dataset_dev):
 
 def run_second_model(dataset_train, dataset_dev):
     """
-
     :param dataset_train:
     :param dataset_dev:
     :return:
     """
+
+    # first model - train
+    first_model = First_Model()
+    x_train = list(dataset_train.dict_words2embedd.values())
+    y_train = list(dataset_train.dict_words2tags.values())
+
+    # data imbalance fix
+
+    new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
+    dataset_train = Dataset(torch.tensor(new_x_train_cpy), torch.tensor(new_y_train_cpy))
+
+
+
     data_size = dataset_train.__getitem__(0)[0].__len__()
     batch_size = 300
     dl_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     dl_dev = DataLoader(dataset_dev, batch_size=batch_size, shuffle=True)
     num_epochs = 10
 
-    second_model = Second_model(inputSize=data_size, outputSize=1)
+    second_model = Second_model(inputSize=data_size, outputSize=2)
     print(second_model)
-    loss_fn_string = "binary_cross_entropy"
     optimizer = torch.optim.Adam(second_model.parameters(), lr=0.1)
-    trainer = Trainer(model=second_model, loss_fn_string=loss_fn_string, optimizer=optimizer, device=None)
+    trainer = Trainer(model=second_model, optimizer=optimizer, device=None)
 
     trainer.fit(dl_train=dl_train, dl_dev=dl_dev, num_epochs=num_epochs)
     f1 = trainer.eval(dl_dev=dl_dev)
@@ -120,5 +133,5 @@ if __name__ == '__main__':
     dataset_dev = dataset.EntityDataSet(dev_path, model=model)
     print('done creating datasets')
 
-    run_first_model(dataset_train, dataset_dev)
-    # run_second_model(dataset_train, dataset_dev)
+    # run_first_model(dataset_train, dataset_dev)
+    run_second_model(dataset_train, dataset_dev)

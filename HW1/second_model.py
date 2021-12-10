@@ -17,6 +17,8 @@ class Second_model(torch.nn.Module):
     def forward(self, x):
         out = self.fc1(x.float())
         out = F.relu(out)
-        out = F.relu(self.fc2(out))
-        out = torch.sigmoid(out)
+        out = self.fc2(out)
+        out = F.relu(out)
+        # out = torch.sigmoid(out)
+        out = F.softmax(out)
         return out
