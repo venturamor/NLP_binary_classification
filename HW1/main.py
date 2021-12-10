@@ -101,18 +101,20 @@ def run_second_model(dataset_train, dataset_dev):
 
     new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
+    # Hyperparameters
 
-
+    batch_size = 50
+    num_epochs = 20
+    learning_rate = 0.1
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
-    batch_size = 300
+
     dl_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     dl_dev = DataLoader(dataset_dev, batch_size=batch_size, shuffle=True)
-    num_epochs = 10
 
     second_model = Second_model(inputSize=data_size, outputSize=2)
     print(second_model)
-    optimizer = torch.optim.Adam(second_model.parameters(), lr=0.1)
+    optimizer = torch.optim.Adam(second_model.parameters(), lr=learning_rate)
     trainer = Trainer(model=second_model, optimizer=optimizer, device=None)
 
     trainer.fit(dl_train=dl_train, dl_dev=dl_dev, num_epochs=num_epochs)

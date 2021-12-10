@@ -17,7 +17,6 @@ class ListDataSet(Dataset):
         self.data = data_list
         self.label = label_list
 
-
     def __getitem__(self, item):
         '''
 

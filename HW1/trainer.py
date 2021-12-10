@@ -20,26 +20,31 @@ class Trainer:
         if self.device:
             self.model.to(self.device)
 
-    def test_batch(self, batch):
-        x_train, y_train = batch
-        pred = self.model(x_train)
-        binary_pred = torch.max(pred)
-        num_correct = (binary_pred == y_train).sum().item()
-        acc = (num_correct * 100) / y_train.size()[0]
-        return acc
+    # def test_batch(self, batch):
+        # x_train, y_train = batch
+        # pred = self.model(x_train)
+        # binary_pred = torch.max(pred)
+        # num_correct = (binary_pred == y_train).sum().item()
+        # acc = (num_correct * 100) / y_train.size()[0]
+        # return acc
 
-    def test_epoch(self, dl_dev: DataLoader):
-        """
-        Evaluate model once over a test set (single epoch).
-        :return: An EpochResult for the epoch.
-        """
-        with torch.no_grad():
-            acc_list = []
-            self.model.eval()
-            for batch in dl_dev:
-                acc = self.test_batch(batch)
-                acc_list.append(acc)
-            return (np.asarray(acc_list)).mean()
+    # def test_epoch(self, dl_dev: DataLoader):
+    #     """
+    #     Evaluate model once over a test set (single epoch).
+    #     :return: An EpochResult for the epoch.
+    #     """
+    #     with torch.no_grad():
+    #         f_score = 0
+    #         self.model.eval()
+    #         for batch in dl_dev:
+    #             for batch_ndx, sample in enumerate(batch):
+    #                 self.model.eval()
+    #                 x_dev, y_dev = sample
+    #                 y_pred = self.model(x_dev)
+    #                 y_pred = y_pred[:, 0] < y_pred[:, 1]
+    #                 f1 = f1_score(y_dev, y_pred, average='binary', pos_label=True)
+    #                 f_score += f1
+    #         return f_score / (len(batch) * batch_ndx)
 
     def fit(self,
             dl_train: DataLoader,
@@ -71,9 +76,9 @@ class Trainer:
                 loss.backward()
                 self.optimizer.step()
 
-            acc = self.test_epoch(dl_dev)
+            acc = self.eval(dl_dev)
             print('epoch {}, loss {}'.format(epoch, loss.item()))
-            print('epoch {}, acc {}'.format(epoch, acc))
+            print('epoch {}, f1 {}'.format(epoch, acc))
 
     def eval(self, dl_dev: DataLoader):
         """
@@ -87,7 +92,6 @@ class Trainer:
             x_dev, y_dev = sample
             y_pred = self.model(x_dev)
             y_pred = y_pred[:, 0] < y_pred[:, 1]
-            # print("x_dev: ", x_dev, " y_dev: ", y_dev, " y_pred: ", y_pred)
             f1 = f1_score(y_dev, y_pred, average='binary', pos_label=True)
             f_score += f1
         return f_score / len(dl_dev)
