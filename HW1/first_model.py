@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report, f1_score
 from sklearn.metrics import log_loss, plot_confusion_matrix, roc_auc_score, plot_roc_curve
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
@@ -94,6 +94,7 @@ class First_Model():
         :return: confusion matrix plot and statistics printed
         """
         print(classification_report(y_test, y_pred_test))
+        print('f1:', f1_score(y_test, y_pred_test))
 
         calc_TN = lambda y_true, y_pred: confusion_matrix(y_true, y_pred)[0, 0]
         calc_FP = lambda y_true, y_pred: confusion_matrix(y_true, y_pred)[0, 1]

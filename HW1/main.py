@@ -16,18 +16,20 @@ GLOVE_PATH = 'glove-twitter-25'
 embedding_size = int(GLOVE_PATH.split('-')[-1])
 
 
-def run_first_model(dataset_train, dataset_dev):
-    # first model - train
-    first_model = First_Model()
-    x_train = list(dataset_train.dict_words2embedd.values())
-    y_train = list(dataset_train.dict_words2tags.values())
+def data_imbalance_fix(x_train, y_train):
+    """
 
+    :param x_train:
+    :param y_train:
+    :return:
+    """
     # try to deal with data imbalance - resample minority (True)
+    # TODO: move as function to dataset.py
     true_indices = [index for index, element in enumerate(y_train) if element]
     false_indices = [index for index, element in enumerate(y_train) if not element]
     x_train_true_embedding = [x_train[ind] for ind in true_indices]
     x_train_false_embedding = [x_train[ind] for ind in false_indices]
-    num_to_duplicate = np.int8(np.floor(len(x_train_false_embedding)/len(x_train_true_embedding)))
+    num_to_duplicate = np.int8(np.floor(len(x_train_false_embedding) / len(x_train_true_embedding)))
     new_x_train = x_train_false_embedding
     new_y_train = [False] * len(new_x_train)
     y_true = [True] * len(x_train_true_embedding)
@@ -35,14 +37,34 @@ def run_first_model(dataset_train, dataset_dev):
         new_x_train.extend(x_train_true_embedding)
         new_y_train.extend(y_true)
     # shuffle
-    new_x_train_cpy =new_x_train.copy()
+    new_x_train_cpy = new_x_train.copy()
     new_y_train_cpy = new_y_train.copy()
 
+    return new_x_train_cpy, new_y_train_cpy
+
+
+def run_first_model(dataset_train, dataset_dev):
+    """
+
+    :param dataset_train:
+    :param dataset_dev:
+    :return:
+    """
+    # first model - train
+    first_model = First_Model()
+    x_train = list(dataset_train.dict_words2embedd.values())
+    y_train = list(dataset_train.dict_words2tags.values())
+
+    # data imbalance fix
+
+    new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train);
+
+    # shuffle
     zipped_ = list(zip(new_x_train_cpy, new_y_train_cpy))
     random.shuffle(zipped_)
-
     new_x_train_cpy, new_y_train_cpy = zip(*zipped_)
 
+    # train please ('choo chooooo!')
     print('start training first model')
     best_clf_shuffle = first_model.train(new_x_train_cpy, new_y_train_cpy)
     print('done training first model')
@@ -62,6 +84,12 @@ def run_first_model(dataset_train, dataset_dev):
 
 
 def run_second_model(dataset_train, dataset_dev):
+    """
+
+    :param dataset_train:
+    :param dataset_dev:
+    :return:
+    """
     data_size = dataset_train.__getitem__(0)[0].__len__()
     batch_size = 300
     dl_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)

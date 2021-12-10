@@ -68,7 +68,6 @@ class EntityDataSet(Dataset):
         if use_window:
             # embeddings = [np.concatenate([embeddings[idx-1], emb, embeddings[idx+1]]) for idx, emb in enumerate(embeddings[1:-1])]
             new_embeddings_lists = []
-            # TODO: fix
             for sentence in embeddings_lists:
                 new_embedding_sentence = []
                 for idx, emb in enumerate(sentence[1:-1]):
@@ -88,7 +87,16 @@ class EntityDataSet(Dataset):
         self.dict_words2tuple = {}
         self.define_dicts(words, tags, embeddings)
 
+
     def get_embeddings(self, model, words_lists, word_start, word_end):
+        """
+
+        :param model:
+        :param words_lists:
+        :param word_start:
+        :param word_end:
+        :return:
+        """
 
         symbols = ["@", "http", "#"]
         embeddings = []
@@ -111,28 +119,14 @@ class EntityDataSet(Dataset):
             embeddings.append(embedd_sentence)
         return embeddings
 
-        # # if word is not in vocab - use zeros representation
-        # # if word contains  "@" / "http" / "#" - word will be embedded as those symbols
-        # embeddings = []
-        # symbols = ["@", "http", "#"]
-        # for i, word in enumerate(words):
-        #     ind_symbol = [ind for ind, x in enumerate([(symbol in word) for symbol in symbols]) if x]
-        #     if ind_symbol:
-        #         word = symbols[ind_symbol[0]]
-        #     try:
-        #         embedding = model[word]
-        #     except KeyError:
-        #         if word == word_start:
-        #             embedding = 0.1 * np.zeros(embedding_size)
-        #         elif word == word_end:
-        #             embedding = 0.9 * np.ones(embedding_size)
-        #         else:
-        #             embedding = np.zeros(embedding_size)
-        #     embeddings.append(embedding)
-        #
-        # return embeddings
-
     def define_dicts(self, words, tags, embeddings):
+        """
+
+        :param words:
+        :param tags:
+        :param embeddings:
+        :return:
+        """
         dict_index = 0
         for idx, word in enumerate(words):
             if word not in self.dict_words2embedd.keys():
@@ -155,4 +149,8 @@ class EntityDataSet(Dataset):
         return self.dict_idx2tuple[item]
 
     def __len__(self):
+        """
+
+        :return:
+        """
         return self.dict_idx2tuple.__len__() - 1
