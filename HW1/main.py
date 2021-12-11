@@ -122,7 +122,16 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     f1 = trainer.eval(dl_dev=dl_dev)
     print("Second model done with f1: ", f1)
 
-    torch.save(trainer.model.state_dict(), "PATH")
+    # Specify a path
+    PATH = "second_model.pt"
+
+    # Save
+    torch.save(second_model.state_dict(), PATH)
+
+    # # Load
+    # model = Net()
+    # model.load_state_dict(torch.load(PATH))
+    # model.eval()
 
     trainer.test(dataset_test)
 
