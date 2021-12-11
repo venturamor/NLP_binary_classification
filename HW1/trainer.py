@@ -69,3 +69,18 @@ class Trainer:
             f1 = f1_score(y_dev, y_pred, average='binary', pos_label=True)
             f_score += f1
         return f_score / len(dl_dev)
+
+    def test(self, dl_test: DataLoader):
+        """
+        Args:
+            dl_dev:
+        Returns: f1_score
+        """
+        predictions = []
+        for batch_ndx, sample in enumerate(dl_test):
+            self.model.eval()
+            x_test = sample
+            y_pred = self.model(x_test)
+            y_pred = y_pred[:, 0] < y_pred[:, 1]
+            # for i in range (y_pred)
+        return

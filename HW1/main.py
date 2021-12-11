@@ -12,7 +12,7 @@ import gensim
 from gensim import downloader
 from torch.utils.data import Dataset
 from torch.utils.data import TensorDataset
-
+import pickle
 
 def data_imbalance_fix(x_train, y_train):
     """
@@ -80,8 +80,14 @@ def run_first_model(dataset_train, dataset_dev):
     print('done evaluating first model')
     print("First model done with f1: ")
 
+    pickle_path = "first_model.pickle"
 
-def run_second_model(dataset_train, dataset_dev):
+    # Store data (serialize)
+    with open('filename.pickle', 'wb') as handle:
+        pickle.dump(first_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def run_second_model(dataset_train, dataset_dev, dataset_test):
     """
     :param dataset_train:
     :param dataset_dev:
@@ -94,12 +100,11 @@ def run_second_model(dataset_train, dataset_dev):
     y_train = list(dataset_train.dict_words2tags.values())
 
     # data imbalance fix
-
     new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
 
     # Hyperparameters
-    batch_size = 32
+    batch_size = 64
     num_epochs = 16
     learning_rate = 0.0001
 
@@ -117,6 +122,10 @@ def run_second_model(dataset_train, dataset_dev):
     f1 = trainer.eval(dl_dev=dl_dev)
     print("Second model done with f1: ", f1)
 
+    torch.save(trainer.model.state_dict(), "PATH")
+
+    trainer.test(dataset_test)
+
 
 if __name__ == '__main__':
 
@@ -126,14 +135,19 @@ if __name__ == '__main__':
     # load dataset
     train_path = "data/train.tagged"
     dev_path = "data/dev.tagged"
+    test_path = "data/test.untagged"
 
     print("loading model")
     model = gensim.downloader.load(GLOVE_PATH)
     print("model downloaded")
 
-    dataset_train = dataset.EntityDataSet(train_path, model=model, embedding_size=embedding_size)
-    dataset_dev = dataset.EntityDataSet(dev_path, model=model, embedding_size=embedding_size)
+    # Hyper parameter
+    window_size = 2
+
+    dataset_train = dataset.EntityDataSet(train_path, model=model, embedding_size=embedding_size, window_size=window_size)
+    dataset_dev = dataset.EntityDataSet(dev_path, model=model, embedding_size=embedding_size, window_size=window_size)
+    dataset_test = dataset.EntityDataSet(test_path, model=model, embedding_size=embedding_size, is_test=True)
     print('done creating datasets')
 
     # run_first_model(dataset_train, dataset_dev)
-    run_second_model(dataset_train, dataset_dev)
+    run_second_model(dataset_train, dataset_dev, dataset_test)
