@@ -30,6 +30,8 @@ class ListDataSet(Dataset):
 
 class EntityDataSet(Dataset):
     # Updated    def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
+    # def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
+    # def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
     def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
         """
         :param file_path:
