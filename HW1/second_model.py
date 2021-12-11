@@ -23,14 +23,10 @@ class Second_model(torch.nn.Module):
         self.bn3 = torch.nn.BatchNorm1d(num_features=outputSize)
         self.dropout = torch.nn.Dropout(0.01)
 
-        for layer in [self.fc1, self.fc2, self.fc3]:
-            layer.weight.data.uniform_(-1, 1)
 
     def forward(self, x):
         out = self.fc1(x.float())
-        out = self.bn1(out)
         out = F.relu(out)
-        out = self.dropout(out)
 
         out = self.fc2(out)
         out = self.bn2(out)
