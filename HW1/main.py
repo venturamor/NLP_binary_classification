@@ -102,16 +102,12 @@ def run_second_model(dataset_train, dataset_dev):
     new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
     # Hyperparameters
-<<<<<<< HEAD
-    batch_size = 32
-    num_epochs = 16
-    learning_rate = 0.00001
-=======
+
 
     batch_size = 50
     num_epochs = 20
     learning_rate = 0.1
->>>>>>> parent of 3dc3349 (mor second model - tags as one hot vector)
+
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
 

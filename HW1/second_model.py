@@ -23,24 +23,11 @@ class Second_model(torch.nn.Module):
         self.bn3 = torch.nn.BatchNorm1d(num_features=outputSize)
         self.dropout = torch.nn.Dropout(0.2)
 
-<<<<<<< HEAD
-        for layer in [self.fc1, self.fc2, self.fc3]:
-            layer.weight.data.uniform_(-1, 1)
-
-    def forward(self, x):
-        out = self.fc1(x.float())
-        out = self.bn1(out)
-        out = F.relu(out)
-        out = self.dropout(out)
-
-=======
-        net = torch.nn.Sequential(torch.nn.Linear(2, 2), torch.nn.Linear(2, 2))
-        net.apply(self.init_weights)
 
     def forward(self, x):
         out = self.fc1(x.float())
         out = F.relu(out)
->>>>>>> parent of 3dc3349 (mor second model - tags as one hot vector)
+
         out = self.fc2(out)
         out = self.bn2(out)
         out = F.relu(out)
