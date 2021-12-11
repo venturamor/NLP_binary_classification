@@ -59,7 +59,6 @@ class First_Model():
         print('train evaluation - f1 score: ', self.eval(x_eval=x_train, y_eval=y_train))
         return self.best_clf
 
-
     def test(self, x_test):
         '''
 
@@ -71,7 +70,6 @@ class First_Model():
         y_prob = self.best_clf.predict_proba(x_test)
 
         return y_prob, y_pred
-
 
     def eval(self, x_eval, y_eval):
         '''

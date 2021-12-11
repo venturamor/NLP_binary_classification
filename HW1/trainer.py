@@ -20,37 +20,10 @@ class Trainer:
         if self.device:
             self.model.to(self.device)
 
-    # def test_batch(self, batch):
-        # x_train, y_train = batch
-        # pred = self.model(x_train)
-        # binary_pred = torch.max(pred)
-        # num_correct = (binary_pred == y_train).sum().item()
-        # acc = (num_correct * 100) / y_train.size()[0]
-        # return acc
-
-    # def test_epoch(self, dl_dev: DataLoader):
-    #     """
-    #     Evaluate model once over a test set (single epoch).
-    #     :return: An EpochResult for the epoch.
-    #     """
-    #     with torch.no_grad():
-    #         f_score = 0
-    #         self.model.eval()
-    #         for batch in dl_dev:
-    #             for batch_ndx, sample in enumerate(batch):
-    #                 self.model.eval()
-    #                 x_dev, y_dev = sample
-    #                 y_pred = self.model(x_dev)
-    #                 y_pred = y_pred[:, 0] < y_pred[:, 1]
-    #                 f1 = f1_score(y_dev, y_pred, average='binary', pos_label=True)
-    #                 f_score += f1
-    #         return f_score / (len(batch) * batch_ndx)
-
     def fit(self,
             dl_train: DataLoader,
             dl_dev: DataLoader,
-            num_epochs,
-            print_every=1):
+            num_epochs):
         """
         Trains the model for multiple epochs with a given training set,
         and calculates validation loss over a given validation set.
@@ -59,6 +32,7 @@ class Trainer:
         :param num_epochs: Number of epochs to train for.
         :param print_every: print every
         """
+        self.model.train()
         for epoch in range(num_epochs):
             # Forward pass: Compute predicted y by passing
             # x to the model
@@ -66,12 +40,11 @@ class Trainer:
                 self.optimizer.zero_grad()
                 x_train, y_train = sample
                 y_prob = self.model(x_train)
-                # print("x_train: ", x_train, " y_dev: ", y_pred, " y_pred: ", y_pred)
+
                 # Compute and print loss
                 # if self.loss_fn_string == "binary_cross_entropy":
                 # TODO: let the model get the loss
-                # loss = torch.nn.functional.nll_loss(y_prob, y_train.long())  # Michael
-                loss = torch.nn.functional.binary_cross_entropy(y_prob, y_train.float())
+                loss = torch.nn.functional.nll_loss(y_prob, y_train.long())
                 # Zero gradients, perform a backward pass,
                 # and update the weights.
                 loss.backward()
@@ -84,7 +57,7 @@ class Trainer:
     def eval(self, dl_dev: DataLoader):
         """
         Args:
-            dl_dev: dataloader for data to be evaluated
+            dl_dev:
         Returns: f1_score
         """
         f_score = 0
@@ -92,9 +65,7 @@ class Trainer:
             self.model.eval()
             x_dev, y_dev = sample
             y_pred = self.model(x_dev)
-            y_pred = torch.argmax(y_pred, dim=1)
-            y_dev = torch.argmax(y_dev, dim=1)
-            # y_pred = y_pred[:, 0] < y_pred[:, 1]
-            f1 = f1_score(y_dev.numpy(), y_pred.numpy(), average='binary', pos_label=True)
+            y_pred = y_pred[:, 0] < y_pred[:, 1]
+            f1 = f1_score(y_dev, y_pred, average='binary', pos_label=True)
             f_score += f1
         return f_score / len(dl_dev)

@@ -44,16 +44,12 @@ class EntityDataSet(Dataset):
         data = open(file_path, "r").read()
         data_lower = data.lower()
 
-        # prepare the data
-        tagged_sentences = data_lower.split('\n\n')[:-1]
-        tagged_words_lists = [sentence.split('\n') for sentence in tagged_sentences]
 
-        self.words_lists = \
-            [[tagged_word.split('\t')[0] for tagged_word in tagged_word_list] for tagged_word_list in tagged_words_lists]
-        self.tags_lists = \
-            [[(tagged_word.split('\t')[1]) for tagged_word in tagged_word_list] for tagged_word_list in tagged_words_lists]
-        self.bin_tags_lists =\
-            [[tag != 'o' for tag in tags_list] for tags_list in self.tags_lists]
+        # prepare data with Big letters
+
+        # prepare the data
+        self.words_lists, self.tags_lists, self.bin_tags_lists = self.prepare_data(data_lower)
+        words_lists_lower, tags_lists_lower, bin_tags_lists_lower = self.prepare_data(data)
 
         list_updated = self.words_lists
         # unique dict words to embedd
@@ -67,22 +63,9 @@ class EntityDataSet(Dataset):
             list_updated = self.words_lists_padd
         # load pre-trained model
 
-        # model = gensim.models.Word2Vec.load(GLOVE_PATH)
-        # model.build_vocab(self.words_lists, update=True)
-        # model.train(self.words_lists, total_examples=model.corpus_count, epochs=model.epochs)
-
-
-        # train model on our corpus
-        # vector_size = 100  # 50
-        # model = Word2Vec(sentences=self.words_lists, vector_size=vector_size, window=5, min_count=1, workers=1, epochs=1)
-        # model.save("word2vec.model") #  model.wv is the embedding
-
-        # embeddings = model.wv[words]
-
         # list of lists of embeddings
         embeddings_lists = self.get_embeddings(model, list_updated, padding_word_start, padding_word_end, embedding_size)
         if use_window:
-            # embeddings = [np.concatenate([embeddings[idx-1], emb, embeddings[idx+1]]) for idx, emb in enumerate(embeddings[1:-1])]
             new_embeddings_lists = []
             for sentence in embeddings_lists:
                 new_embedding_sentence = []
@@ -102,10 +85,21 @@ class EntityDataSet(Dataset):
         self.dict_words2tuple = {}
         self.define_dicts(words, tags, embeddings)
 
+    def prepare_data(self, data):
+        tagged_sentences = data.split('\n\n')[:-1]
+        tagged_words_lists = [sentence.split('\n') for sentence in tagged_sentences]
+
+        words_lists = \
+            [[tagged_word.split('\t')[0] for tagged_word in tagged_word_list] for tagged_word_list in tagged_words_lists]
+        tags_lists = \
+            [[(tagged_word.split('\t')[1]) for tagged_word in tagged_word_list] for tagged_word_list in tagged_words_lists]
+        bin_tags_lists =\
+            [[tag != 'o' for tag in tags_list] for tags_list in self.tags_lists]
+
+        return words_lists, tags_lists, bin_tags_lists
 
     def get_embeddings(self, model, words_lists, word_start, word_end, embedding_size):
         """
-
         :param model:
         :param words_lists:
         :param word_start:

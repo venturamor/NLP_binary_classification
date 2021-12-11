@@ -11,8 +11,8 @@ class Second_model(torch.nn.Module):
             outputSize: 2
         '''
 
-        hiddenSize_1 = 64
-        hiddenSize_2 = 32
+        hiddenSize_1 = 128
+        hiddenSize_2 = 128
 
         super(Second_model, self).__init__()
         self.fc1 = torch.nn.Linear(inputSize, hiddenSize_1)
@@ -21,7 +21,7 @@ class Second_model(torch.nn.Module):
         self.bn2 = torch.nn.BatchNorm1d(num_features=hiddenSize_2)
         self.fc3 = torch.nn.Linear(hiddenSize_2, outputSize)
         self.bn3 = torch.nn.BatchNorm1d(num_features=outputSize)
-        self.dropout = torch.nn.Dropout(0.2)
+        self.dropout = torch.nn.Dropout(0.01)
 
         for layer in [self.fc1, self.fc2, self.fc3]:
             layer.weight.data.uniform_(-1, 1)
@@ -44,8 +44,3 @@ class Second_model(torch.nn.Module):
 
         out = F.softmax(out, dim=1)
         return out
-
-    # def init_weights(m):
-    #     if isinstance(m, torch.nn.Linear):
-    #         torch.nn.init.xavier_uniform(m.weight)
-    #         m.bias.data.fill_(0.01)

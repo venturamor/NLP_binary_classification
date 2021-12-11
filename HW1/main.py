@@ -13,10 +13,6 @@ from gensim import downloader
 from torch.utils.data import Dataset
 from torch.utils.data import TensorDataset
 
-WORD_2_VEC_PATH = 'word2vec-google-news-300'
-GLOVE_PATH = 'glove-twitter-100'
-embedding_size = int(GLOVE_PATH.split('-')[-1])
-
 
 def data_imbalance_fix(x_train, y_train):
     """
@@ -101,10 +97,11 @@ def run_second_model(dataset_train, dataset_dev):
 
     new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
+
     # Hyperparameters
     batch_size = 32
     num_epochs = 16
-    learning_rate = 0.00001
+    learning_rate = 0.0001
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
 
@@ -125,6 +122,7 @@ if __name__ == '__main__':
 
     GLOVE_PATH = 'glove-twitter-100'
     embedding_size = int(GLOVE_PATH.split('-')[-1])
+
     # load dataset
     train_path = "data/train.tagged"
     dev_path = "data/dev.tagged"
