@@ -1,9 +1,4 @@
-import torch
 from torch.utils.data import Dataset
-from gensim.models import Word2Vec
-
-import pandas as pd
-# from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
 
@@ -18,7 +13,7 @@ class ListDataSet(Dataset):
         :param item: for idx of word in our corpus
         :return: tuple of (embeddings, tag)
         '''
-        return self.data[item], self.label[item]
+        return self.data[item], np.array(self.label[item]) #self.label[item]
 
     def __len__(self):
         """
@@ -29,10 +24,7 @@ class ListDataSet(Dataset):
 
 
 class EntityDataSet(Dataset):
-    # Updated    def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
-    # def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
-    # def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
-    def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
+    def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1, is_test=False):
         """
         :param file_path:
         :param wind_size: prev + curr word + next window
@@ -97,7 +89,7 @@ class EntityDataSet(Dataset):
         tags_lists = \
             [[(tagged_word.split('\t')[1]) for tagged_word in tagged_word_list] for tagged_word_list in tagged_words_lists]
         bin_tags_lists =\
-            [[tag != 'o' for tag in tags_list] for tags_list in self.tags_lists]
+            [[tag != 'o' for tag in tags_list] for tags_list in tags_lists]
 
         return words_lists, tags_lists, bin_tags_lists
 
