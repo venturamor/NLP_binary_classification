@@ -5,7 +5,7 @@ from gensim.models import Word2Vec
 import pandas as pd
 # from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
-# Updated
+
 
 class ListDataSet(Dataset):
     def __init__(self, data_list, label_list):
@@ -29,6 +29,7 @@ class ListDataSet(Dataset):
 
 
 class EntityDataSet(Dataset):
+    # Updated    def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
     def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1):
         """
         :param file_path:
