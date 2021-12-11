@@ -49,7 +49,7 @@ class EntityDataSet(Dataset):
 
         # prepare the data
         self.words_lists, self.tags_lists, self.bin_tags_lists = self.prepare_data(data_lower)
-        words_lists_lower, tags_lists_lower, bin_tags_lists_lower = self.prepare_data(data)
+        words_lists_orig, tags_lists_orig, bin_tags_lists_orig = self.prepare_data(data)
 
         list_updated = self.words_lists
         # unique dict words to embedd
