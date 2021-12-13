@@ -8,7 +8,6 @@ import torch
 
 
 class main_run_class():
-
     def __init__(self):
         self.first_trained_model = None
         self.second_trained_model = None
@@ -61,17 +60,27 @@ class main_run_class():
         # create test tagged
 
     def run_second_model(self):
-        trainer.test(self.dataset_test)
+        dl_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=True)
+        optimizer = torch.optim.Adam(second_model.parameters(), lr=learning_rate)
+        trainer = Trainer(model=second_model, optimizer=optimizer, device=None)
+
+        dict = trainer.test(dl_test)
+        # TODO save dict as self.second_model_dict
+        # self.save_test_tagged(dict)
 
     def save_test_tagged(self):
-        # TODO
-        print('yello')
+        # TODO save test embeddings words in a list: self.word_embeddings
+        f = open("test_output_model_1.txt", "r")
+        for word in self.words:
+            prediction = self.second_model_dict[self.word_embeddings]
+            f.write(word + "    " + prediction + "\n")
 
     def run(self):
         print("loading first model")
         self.load_first_model()
         print("loading second model")
-        self.load_second_model()
+        second_model_path = "second_model.pt"
+        self.load_second_model(second_model_path)
         print("create test dataset")
         self.create_dataset_test()
         print("run first model on test")
@@ -82,6 +91,7 @@ class main_run_class():
         self.run_second_model()
         print("save test_tagged by second model")
         self.save_test_tagged()
+
 
 
 

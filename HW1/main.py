@@ -104,7 +104,7 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
 
     # Hyperparameters
-    batch_size = 8192
+    batch_size = 128
     num_epochs = 100
     learning_rate = 0.0001
 
@@ -112,6 +112,7 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
 
     dl_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     dl_dev = DataLoader(dataset_dev, batch_size=batch_size, shuffle=True)
+    dl_test = DataLoader(dataset_test, batch_size=batch_size, shuffle=True)
 
     second_model = Second_model(inputSize=data_size, outputSize=2)
     print(second_model)
@@ -128,12 +129,7 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     # Save
     torch.save(second_model.state_dict(), PATH)
 
-    # # Load
-    # model = Net()
-    # model.load_state_dict(torch.load(PATH))
-    # model.eval()
-
-    # trainer.test(dataset_test)
+    trainer.test(dl_test)
 
 
 if __name__ == '__main__':
@@ -151,11 +147,12 @@ if __name__ == '__main__':
     print("model downloaded")
 
     # Hyper parameter
-    window_size = 3
+    window_size = 1
 
     dataset_train = dataset.EntityDataSet(train_path, model=model, embedding_size=embedding_size, window_size=window_size)
     dataset_dev = dataset.EntityDataSet(dev_path, model=model, embedding_size=embedding_size, window_size=window_size)
-    dataset_test = dataset.EntityDataSet(test_path, model=model, embedding_size=embedding_size,  window_size=window_size, is_test=True)
+    dataset_test = dataset.EntityDataSet(test_path, model=model, embedding_size=embedding_size,
+                                         window_size=window_size, is_test=True)
     print('done creating datasets')
 
     # run_first_model(dataset_train, dataset_dev, dataset_test)

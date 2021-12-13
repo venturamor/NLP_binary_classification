@@ -185,4 +185,3 @@ class EntityDataSet(Dataset):
             return self.dict_idx2embedd.__len__() - 1
         else:
             return self.dict_idx2tuple.__len__() - 1
-
