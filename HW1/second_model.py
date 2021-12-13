@@ -23,7 +23,6 @@ class Second_model(torch.nn.Module):
         self.bn3 = torch.nn.BatchNorm1d(num_features=outputSize)
         self.dropout = torch.nn.Dropout(0.01)
 
-
     def forward(self, x):
         out = self.fc1(x.float())
         out = F.relu(out)
