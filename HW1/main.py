@@ -104,8 +104,8 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
 
     # Hyperparameters
-    batch_size = 64
-    num_epochs = 16
+    batch_size = 8192
+    num_epochs = 100
     learning_rate = 0.0001
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
@@ -133,7 +133,7 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     # model.load_state_dict(torch.load(PATH))
     # model.eval()
 
-    trainer.test(dataset_test)
+    # trainer.test(dataset_test)
 
 
 if __name__ == '__main__':
@@ -151,7 +151,7 @@ if __name__ == '__main__':
     print("model downloaded")
 
     # Hyper parameter
-    window_size = 2
+    window_size = 3
 
     dataset_train = dataset.EntityDataSet(train_path, model=model, embedding_size=embedding_size, window_size=window_size)
     dataset_dev = dataset.EntityDataSet(dev_path, model=model, embedding_size=embedding_size, window_size=window_size)
