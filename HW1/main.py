@@ -76,14 +76,14 @@ def run_first_model(dataset_train, dataset_dev, dataset_test):
 
     print('start evaluating first model')
     first_model.eval(x_dev, y_dev)
-    first_model.model_performance(x_dev, y_dev, y_pred, y_prob, best_clf_shuffle)
+    first_model.model_performance(x_dev, y_dev, y_pred, y_prob)  # , best_clf_shuffle)
     print('done evaluating first model')
     print("First model done with f1: ")
 
     pickle_path = "first_model.pickle"
 
     # Store data (serialize)
-    with open('filename.pickle', 'wb') as handle:
+    with open('first_model.pickle', 'wb') as handle:
         pickle.dump(first_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -151,12 +151,12 @@ if __name__ == '__main__':
     print("model downloaded")
 
     # Hyper parameter
-    window_size = 3
+    window_size = 1
 
     dataset_train = dataset.EntityDataSet(train_path, model=model, embedding_size=embedding_size, window_size=window_size)
     dataset_dev = dataset.EntityDataSet(dev_path, model=model, embedding_size=embedding_size, window_size=window_size)
     dataset_test = dataset.EntityDataSet(test_path, model=model, embedding_size=embedding_size,  window_size=window_size, is_test=True)
     print('done creating datasets')
 
-    # run_first_model(dataset_train, dataset_dev, dataset_test)
-    run_second_model(dataset_train, dataset_dev, dataset_test)
+    run_first_model(dataset_train, dataset_dev, dataset_test)
+    # run_second_model(dataset_train, dataset_dev, dataset_test)

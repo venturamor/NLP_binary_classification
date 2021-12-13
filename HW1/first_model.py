@@ -6,43 +6,43 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report, f1_score
 from sklearn.metrics import log_loss, plot_confusion_matrix, roc_auc_score, plot_roc_curve
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.svm import SVC
 
 
 class First_Model():
-    def __init__(self, refit='f1', kernel='rbf', n_splits=3):
+    def __init__(self, use_gridsearch=0, refit='f1', kernel='rbf', n_splits=3):
         '''
         :param refit:
         :param kernel:
         :param n_splits:
         '''
-        # self.clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
-        # Pipeline(steps=[('scaler', StandardScaler()),
-        #                 ('svm', SVC(C=100.0, gamma='auto', probability=True))])
-
-        verbose = 2
-        skf = StratifiedKFold(n_splits=n_splits, random_state=15, shuffle=True)
-        svc = SVC(probability=True)
-        C = np.array([1.25])  # 1, 1.5, 10, 100])
-        # C = np.array([0.01])
-        pipe = Pipeline(steps=[('scaler', StandardScaler()), ('svm', svc)])
-        # pipe = Pipeline(steps=[StandardScaler(), ('svm', svc)])
-        if kernel == 'linear':
-            # self.clf = svm
-            self.clf = GridSearchCV(estimator=pipe,
-                                    param_grid={'svm__kernel': [kernel], 'svm__C': C},
-                                    scoring=['f1'],  # , 'accuracy', 'precision', 'recall', 'roc_auc'],
-                                    cv=skf, refit=refit, verbose=verbose, return_train_score=True)
-            clf_type = ['linear']
-        if kernel == 'rbf' or kernel == 'poly':
-            # kernels = ['rbf', 'poly']
-            self.clf = GridSearchCV(estimator=pipe,
-                                    param_grid={'svm__kernel': [kernel], 'svm__C': C, 'svm__degree': [3],
-                                                'svm__gamma': ['auto']},  # , 'scale'
-                                    scoring=['f1'],  # , 'accuracy', 'precision', 'recall', 'roc_auc'],
-                                    cv=skf, refit=refit, verbose=verbose, return_train_score=True)
-            clf_type = [kernel, 'scale']
+        self.use_gridsearch = use_gridsearch
+        if use_gridsearch:
+            verbose = 2
+            skf = StratifiedKFold(n_splits=n_splits, random_state=15, shuffle=True)
+            svc = SVC(probability=True)
+            C = np.array([1.25])  # 1, 1.5, 10, 100])
+            # C = np.array([0.01])
+            pipe = Pipeline(steps=[('scaler', StandardScaler()), ('svm', svc)])
+            # pipe = Pipeline(steps=[StandardScaler(), ('svm', svc)])
+            if kernel == 'linear':
+                # self.clf = svm
+                self.clf = GridSearchCV(estimator=pipe,
+                                        param_grid={'svm__kernel': [kernel], 'svm__C': C},
+                                        scoring=['f1'],  # , 'accuracy', 'precision', 'recall', 'roc_auc'],
+                                        cv=skf, refit=refit, verbose=verbose, return_train_score=True)
+                clf_type = ['linear']
+            if kernel == 'rbf' or kernel == 'poly':
+                # kernels = ['rbf', 'poly']
+                self.clf = GridSearchCV(estimator=pipe,
+                                        param_grid={'svm__kernel': [kernel], 'svm__C': C, 'svm__degree': [3],
+                                                    'svm__gamma': ['auto']},  # , 'scale'
+                                        scoring=['f1'],  # , 'accuracy', 'precision', 'recall', 'roc_auc'],
+                                        cv=skf, refit=refit, verbose=verbose, return_train_score=True)
+                clf_type = [kernel, 'scale']
+        else:
+            self.clf = make_pipeline(StandardScaler(), SVC(C=1.25, kernel='rbf', gamma='auto', probability=True))
 
         self.best_clf = None
 
@@ -54,10 +54,15 @@ class First_Model():
         :return:
         '''
         self.clf.fit(x_train, y_train)
-        self.best_clf = self.clf.best_estimator_
-        print(self.best_clf)
-        print('train evaluation - f1 score: ', self.eval(x_eval=x_train, y_eval=y_train))
-        return self.best_clf
+        if self.use_gridsearch:
+            self.best_clf = self.clf.best_estimator_
+            print(self.best_clf)
+            print('train evaluation - f1 score: ', self.eval(x_eval=x_train, y_eval=y_train))
+            return self.best_clf
+        else:
+            print('train evaluation - f1 score: ', self.eval(x_eval=x_train, y_eval=y_train))
+            return self.clf
+
 
     def test(self, x_test):
         '''
@@ -66,8 +71,12 @@ class First_Model():
         :return: (prob, pred)
         '''
         # return self.clf.predict_proba(x_test), self.clf.predict(x_test)
-        y_pred = self.best_clf.predict(x_test)
-        y_prob = self.best_clf.predict_proba(x_test)
+        if self.use_gridsearch:
+            y_pred = self.best_clf.predict(x_test)
+            y_prob = self.best_clf.predict_proba(x_test)
+        else:
+            y_pred = self.clf.predict(x_test)
+            y_prob = self.clf.predict_proba(x_test)
 
         return y_prob, y_pred
 
@@ -79,14 +88,18 @@ class First_Model():
         '''
         # return self.clf.score(x_eval, y_eval)
         # return self.best_clf.score(x_eval, y_eval)
-        score = self.best_clf.score(x_eval, y_eval)
+        if self.use_gridsearch:
+
+            score = self.best_clf.score(x_eval, y_eval)
+        else:
+            score = self.clf.score(x_eval, y_eval)
+
         print(' eval score: ', score)
         return score
 
-    def model_performance(self, X_test, y_test, y_pred_test, y_pred_proba_test, clf):
+    def model_performance(self, X_test, y_test, y_pred_test, y_pred_proba_test):
         """
         confusion matrix and statistics of the classifier
-        :param clf : trained classifier
         :param y_pred_test, y_pred_proba_test : prediction set
         :param  X_test, y_test: test set
         :return: confusion matrix plot and statistics printed
@@ -103,7 +116,7 @@ class First_Model():
         # plt.show()
 
         # confusion matrix
-        cm = confusion_matrix(y_test, y_pred_test, labels=clf.classes_)
+        cm = confusion_matrix(y_test, y_pred_test, labels=self.clf.classes_)
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
         disp.plot()
         plt.show()
@@ -120,7 +133,6 @@ class First_Model():
         Acc = (TP + TN) / (TP + TN + FP + FN)
         F1 = (2 * Se * PPV) / (Se + PPV)
 
-        print(clf, ':')
 
         print('Sensitivity is {:.2f} \n'
               'Specificity is {:.2f} \n'

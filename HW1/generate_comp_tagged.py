@@ -3,6 +3,7 @@ from second_model import Second_model
 from first_model import First_Model
 from dataset import EntityDataSet
 import trainer
+from gensim import downloader
 import gensim
 import torch
 
@@ -20,9 +21,10 @@ class main_run_class():
         :return:
         """
         # Load data (deserialize)
-        with open('filename.pickle', 'rb') as handle:
-            unserialized_data = pickle.load(handle)
-            self.first_trained_model = unserialized_data
+        first_model_pickle_path = 'first_model.pickle'
+        with open(first_model_pickle_path, 'rb') as handle:
+            first_model = pickle.load(handle)
+            self.first_trained_model = first_model
 
     def load_second_model(self, second_model_path):
         """
@@ -58,6 +60,7 @@ class main_run_class():
         y_prob, y_pred = self.first_trained_model.test(x_test)
         print('done testing first model')
 
+
         # create test tagged
 
     def run_second_model(self):
@@ -71,7 +74,7 @@ class main_run_class():
         print("loading first model")
         self.load_first_model()
         print("loading second model")
-        self.load_second_model()
+        # self.load_second_model()
         print("create test dataset")
         self.create_dataset_test()
         print("run first model on test")
