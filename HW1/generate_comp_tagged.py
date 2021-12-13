@@ -2,6 +2,8 @@ import pickle
 from second_model import Second_model
 from first_model import First_Model
 from dataset import EntityDataSet
+from torch.utils.data import DataLoader
+from trainer import Trainer
 import trainer
 from gensim import downloader
 import gensim
@@ -14,6 +16,9 @@ class main_run_class():
         self.first_trained_model = None
         self.second_trained_model = None
         self.dataset_test = None
+        self.dataloader_test = None
+        self.predictions_first_model = None
+        self.predictions_second_model = None
 
     def load_first_model(self):
         """
@@ -26,27 +31,30 @@ class main_run_class():
             first_model = pickle.load(handle)
             self.first_trained_model = first_model
 
-    def load_second_model(self, second_model_path):
+    def load_second_model(self):
         """
 
         :return: load second model from state dict
         """
-        model = Second_model()
+        second_model_path = "second_model.pt"
+        # data_size = self.dataset_test.__getitem__(0)[0].__len__()
+        # model = Second_model(data_size, 2)
+        model = None
         model.load_state_dict(torch.load(second_model_path))
         self.second_trained_model = model
 
     def create_dataset_test(self):
 
-        test_path = "data/test.untagged"
-        GLOVE_PATH = 'glove-twitter-100'
-        embedding_size = int(GLOVE_PATH.split('-')[-1])
+        test_data_path = "data/test.untagged"
+        glove_path = 'glove-twitter-100'
+        embedding_size = int(glove_path.split('-')[-1])
         window_size = 2
 
-        print("loading embedding model " + GLOVE_PATH)
-        glove_model = gensim.downloader.load(GLOVE_PATH)
-        print(GLOVE_PATH + " - model downloaded")
+        print("loading embedding model " + glove_path)
+        glove_model = gensim.downloader.load(glove_path)
+        print(glove_path + " - model downloaded")
 
-        self.dataset_test = EntityDataSet(test_path,
+        self.dataset_test = EntityDataSet(test_data_path,
                                           model=glove_model,
                                           embedding_size=embedding_size,
                                           window_size=window_size,
@@ -59,41 +67,59 @@ class main_run_class():
         print('start testing first model')
         y_prob, y_pred = self.first_trained_model.test(x_test)
         print('done testing first model')
+        self.predictions_first_model = y_pred
 
         # create test tagged
 
     def run_second_model(self):
-        dl_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=True)
-        optimizer = torch.optim.Adam(second_model.parameters(), lr=learning_rate)
-        trainer = Trainer(model=second_model, optimizer=optimizer, device=None)
+        batch_size = 128
+        learning_rate = 0.0001
+        # create data loader
+        self.dataloader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=True)
+        optimizer = torch.optim.Adam(self.second_trained_model.parameters(), lr=learning_rate)
+        trainer = Trainer(model=self.second_trained_model, optimizer=optimizer, device=None)
 
-        dict = trainer.test(dl_test)
+        dict = trainer.test(self.dataloader_test)
         # TODO save dict as self.second_model_dict
         # self.save_test_tagged(dict)
 
-    def save_test_tagged(self):
-        # TODO save test embeddings words in a list: self.word_embeddings
-        f = open("test_output_model_1.txt", "r")
+    def save_test_tagged(self, run_name):
+
+        words = [item for sublist in self.dataset_test.words_lists for item in sublist]
+        # if run_name == 'first_model':
+        #     f = open("comp_m1_313177412.tagged", "w")
+        #     for word in words:
+        #         embedding = self.dataset_test.dict_words2embedd[word.lower()]
+        #         pred_of_word = self.predictions_second_model[idx_of_word]
+        #         f.write(word + "\t" + pred_of_word + "\n")
+        #
+        #     # words = [item for sublist in self.dataset_test.words_lists for item in sublist]
+        #
+        #     for sentence in self.dataset_test.words_lists:
+        #         for word in sentence:
+
+                # TODO save test embeddings words in a list: self.word_embeddings
+
+        f = open("comp_m2_313177412.tagged", "w")
         for word in self.words:
             prediction = self.second_model_dict[self.word_embeddings]
             f.write(word + "    " + prediction + "\n")
 
     def run(self):
+        print("create test dataset")
+        self.create_dataset_test()
         print("loading first model")
         self.load_first_model()
         print("loading second model")
-        second_model_path = "second_model.pt"
-        self.load_second_model(second_model_path)
-        print("create test dataset")
-        self.create_dataset_test()
+        # self.load_second_model()
         print("run first model on test")
         self.run_first_model()
         print("save test_tagged by first model")
-        self.save_test_tagged()
+        self.save_test_tagged('first_model')
         print("run second model on test")
         self.run_second_model()
         print("save test_tagged by second model")
-        self.save_test_tagged()
+        self.save_test_tagged('second_model')
 
 
 

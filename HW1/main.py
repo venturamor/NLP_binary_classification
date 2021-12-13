@@ -155,5 +155,5 @@ if __name__ == '__main__':
                                          window_size=window_size, is_test=True)
     print('done creating datasets')
 
-    run_first_model(dataset_train, dataset_dev, dataset_test)
-    # run_second_model(dataset_train, dataset_dev, dataset_test)
+    # run_first_model(dataset_train, dataset_dev, dataset_test)
+    run_second_model(dataset_train, dataset_dev, dataset_test)

@@ -30,7 +30,6 @@ class Trainer:
         :param dl_train: Dataloader for the training set.
         :param dl_dev: Dataloader for the test set.
         :param num_epochs: Number of epochs to train for.
-        :param print_every: print every
         """
         self.model.train()
         for epoch in range(num_epochs):
@@ -74,7 +73,7 @@ class Trainer:
         """
         Args:
             dl_dev:
-        Returns: f1_score
+        Returns: predictions
         """
         predictions = {}
         for batch_ndx, sample in enumerate(dl_test):
