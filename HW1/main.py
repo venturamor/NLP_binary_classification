@@ -41,7 +41,7 @@ def data_imbalance_fix(x_train, y_train):
     return new_x_train_cpy, new_y_train_cpy
 
 
-def run_first_model(dataset_train, dataset_dev):
+def run_first_model(dataset_train, dataset_dev, dataset_test):
     """
 
     :param dataset_train:
@@ -155,7 +155,7 @@ if __name__ == '__main__':
 
     dataset_train = dataset.EntityDataSet(train_path, model=model, embedding_size=embedding_size, window_size=window_size)
     dataset_dev = dataset.EntityDataSet(dev_path, model=model, embedding_size=embedding_size, window_size=window_size)
-    dataset_test = dataset.EntityDataSet(test_path, model=model, embedding_size=embedding_size, is_test=True)
+    dataset_test = dataset.EntityDataSet(test_path, model=model, embedding_size=embedding_size,  window_size=window_size, is_test=True)
     print('done creating datasets')
 
     # run_first_model(dataset_train, dataset_dev, dataset_test)
