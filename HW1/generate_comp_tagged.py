@@ -8,10 +8,9 @@ import trainer
 from gensim import downloader
 import gensim
 import torch
+import second_model
 
-
-class main_run_class():
-
+class main_run_class:
     def __init__(self):
         self.first_trained_model = None
         self.second_trained_model = None
@@ -19,6 +18,7 @@ class main_run_class():
         self.dataloader_test = None
         self.predictions_first_model = None
         self.predictions_second_model = None
+        self.words = None
 
     def load_first_model(self):
         """
@@ -37,9 +37,8 @@ class main_run_class():
         :return: load second model from state dict
         """
         second_model_path = "second_model.pt"
-        # data_size = self.dataset_test.__getitem__(0)[0].__len__()
-        # model = Second_model(data_size, 2)
-        model = None
+        data_size = self.dataset_test.__getitem__(0)[0].__len__()
+        model = second_model.Second_model(inputSize=data_size, outputSize=2)
         model.load_state_dict(torch.load(second_model_path))
         self.second_trained_model = model
 
@@ -78,14 +77,12 @@ class main_run_class():
         self.dataloader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=True)
         optimizer = torch.optim.Adam(self.second_trained_model.parameters(), lr=learning_rate)
         trainer = Trainer(model=self.second_trained_model, optimizer=optimizer, device=None)
-
-        dict = trainer.test(self.dataloader_test)
-        # TODO save dict as self.second_model_dict
-        # self.save_test_tagged(dict)
+        # save dict as self.second_model_dict
+        self.predictions_second_model = trainer.test(self.dataloader_test)
 
     def save_test_tagged(self, run_name):
 
-        words = [item for sublist in self.dataset_test.words_lists for item in sublist]
+        self.words = [item for sublist in self.dataset_test.words_lists for item in sublist]
         # if run_name == 'first_model':
         #     f = open("comp_m1_313177412.tagged", "w")
         #     for word in words:
@@ -101,8 +98,8 @@ class main_run_class():
                 # TODO save test embeddings words in a list: self.word_embeddings
 
         f = open("comp_m2_313177412.tagged", "w")
-        for word in self.words:
-            prediction = self.second_model_dict[self.word_embeddings]
+        for idx, word in enumerate(self.words):
+            prediction = self.predictions_second_model[idx]
             f.write(word + "    " + prediction + "\n")
 
     def run(self):
@@ -111,7 +108,7 @@ class main_run_class():
         print("loading first model")
         self.load_first_model()
         print("loading second model")
-        # self.load_second_model()
+        self.load_second_model()
         print("run first model on test")
         self.run_first_model()
         print("save test_tagged by first model")
@@ -122,9 +119,7 @@ class main_run_class():
         self.save_test_tagged('second_model')
 
 
-
 if __name__ == '__main__':
-
     main_run = main_run_class()
     main_run.run()
 

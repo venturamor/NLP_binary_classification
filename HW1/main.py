@@ -112,7 +112,7 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
 
     dl_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     dl_dev = DataLoader(dataset_dev, batch_size=batch_size, shuffle=True)
-    dl_test = DataLoader(dataset_test, batch_size=batch_size, shuffle=True)
+    dl_test = DataLoader(dataset_test, batch_size=batch_size, shuffle=False)
 
     second_model = Second_model(inputSize=data_size, outputSize=2)
     print(second_model)
