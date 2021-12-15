@@ -64,6 +64,7 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     :return:
     """
 
+    torch.torch.manual_seed(3133)
     # first model - train
     first_model = First_Model()
     x_train, y_train = dataset_train.split()
@@ -73,9 +74,9 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
 
     # Hyperparameters
-    batch_size = 32
-    num_epochs = 12
-    learning_rate = 0.001
+    batch_size = 1024
+    num_epochs = 16
+    learning_rate = 0.00036
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
 

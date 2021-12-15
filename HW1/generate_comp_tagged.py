@@ -90,6 +90,9 @@ class main_run_class:
         # create test tagged
 
     def run_second_model(self):
+        batch_size = 1024
+        learning_rate = 0.00036
+
         """
         run second trained model on test dataset
         """
@@ -97,8 +100,7 @@ class main_run_class:
         learning_rate = 0.0001
         # create data loader
         self.dataloader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=False)
-        optimizer = torch.optim.Adam(self.second_trained_model.parameters(), lr=learning_rate)
-        trainer = Trainer(model=self.second_trained_model, optimizer=optimizer, device=None)
+        trainer = Trainer(model=self.second_trained_model)
         # save dict as self.second_model_dict
         self.predictions_second_model = trainer.test(self.dataloader_test)
 
