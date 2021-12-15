@@ -56,7 +56,8 @@ def run_first_model(dataset_train, dataset_dev, dataset_test):
 
     # data imbalance fix
 
-    new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
+    # new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
+    new_x_train_cpy, new_y_train_cpy = x_train, y_train
 
     # shuffle
     zipped_ = list(zip(new_x_train_cpy, new_y_train_cpy))
@@ -71,7 +72,7 @@ def run_first_model(dataset_train, dataset_dev, dataset_test):
     # eval on dev
     # x_dev = list(dataset_dev.dict_words2embedd.values())
     # y_dev = list(dataset_dev.dict_words2tags.values())
-    x_dev, y_dev = dataset_train.split()
+    x_dev, y_dev = dataset_dev.split()
 
 
     print('start testing first model')
@@ -138,7 +139,7 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
 
 if __name__ == '__main__':
 
-    GLOVE_PATH = 'glove-twitter-100'
+    GLOVE_PATH = 'glove-twitter-50'  # 100
     embedding_size = int(GLOVE_PATH.split('-')[-1])
 
     # load dataset
@@ -148,11 +149,13 @@ if __name__ == '__main__':
 
     print("loading gensim model")
     # gensim_model = gensim.downloader.load(GLOVE_PATH)
-    # try to save to pickle and load from there 15/12
-    # Store data (serialize)
-    # with open('gensim_model.pickle', 'wb') as handle:
+    # # try to save to pickle and load from there 15/12
+    # # Store data (serialize)
+    gensim_model_path = 'gensim_model_50.pickle'
+    #
+    # with open(gensim_model_path, 'wb') as handle:
     #     pickle.dump(gensim_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    gensim_model_path = 'gensim_model.pickle'
+
     with open(gensim_model_path, 'rb') as handle:
         gensim_model = pickle.load(handle)
     print("gensim model downloaded")

@@ -42,7 +42,9 @@ class First_Model():
                                         cv=skf, refit=refit, verbose=verbose, return_train_score=True)
                 clf_type = [kernel, 'scale']
         else:
-            self.clf = make_pipeline(StandardScaler(), SVC(C=1.25, kernel='rbf', gamma='auto', probability=True))
+            # self.clf = make_pipeline(StandardScaler(), SVC(C=1.25, kernel='rbf', gamma='auto', probability=True),
+            #                          verbose=True)
+            self.clf = SVC(C=1.25, kernel='rbf', gamma='auto', probability=True)
 
         self.best_clf = None
 
@@ -117,7 +119,7 @@ class First_Model():
 
         # confusion matrix
         cm = confusion_matrix(y_test, y_pred_test, labels=self.clf.classes_)
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=self.clf.classes_)
         disp.plot()
         plt.show()
         #
