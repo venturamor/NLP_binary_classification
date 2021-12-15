@@ -1,9 +1,4 @@
-import torch
 from torch.utils.data import Dataset
-from gensim.models import Word2Vec
-
-import pandas as pd
-# from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
 
@@ -47,9 +42,9 @@ class EntityDataSet(Dataset):
 
         # prepare the data
         self.words_lists, self.tags_lists, self.bin_tags_lists = self.prepare_data(data_lower)
-        words_lists_orig, tags_lists_orig, bin_tags_lists_orig = self.prepare_data(data)
+        self.words_lists_orig, tags_lists_orig, bin_tags_lists_orig = self.prepare_data(data)
 
-        list_updated = words_lists_orig
+        list_updated = self.words_lists_orig
         # unique dict words to embedd
         words = [item for sublist in list_updated for item in sublist]
 
@@ -205,3 +200,31 @@ class EntityDataSet(Dataset):
         y = [item[1] for item in self.dict_idxCorpus2tuple.values()]
 
         return x, y
+
+
+# -------- help function
+def data_imbalance_fix(x_train, y_train):
+    """
+    fix the imbalance between minority tags (True) and majority - duplicate to uniform disribution
+    :param x_train:
+    :param y_train:
+    :return:
+    """
+    # try to deal with data imbalance - resample minority (True)
+    # TODO: move as function to dataset.py
+    true_indices = [index for index, element in enumerate(y_train) if element]
+    false_indices = [index for index, element in enumerate(y_train) if not element]
+    x_train_true_embedding = [x_train[ind] for ind in true_indices]
+    x_train_false_embedding = [x_train[ind] for ind in false_indices]
+    num_to_duplicate = np.int8(np.floor(len(x_train_false_embedding) / len(x_train_true_embedding)))
+    new_x_train = x_train_false_embedding
+    new_y_train = [False] * len(new_x_train)
+    y_true = [True] * len(x_train_true_embedding)
+    for dup in range(num_to_duplicate):
+        new_x_train.extend(x_train_true_embedding)
+        new_y_train.extend(y_true)
+    # shuffle
+    new_x_train_cpy = new_x_train.copy()
+    new_y_train_cpy = new_y_train.copy()
+
+    return new_x_train_cpy, new_y_train_cpy
