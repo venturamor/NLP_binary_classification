@@ -90,14 +90,10 @@ class main_run_class:
         # create test tagged
 
     def run_second_model(self):
-        batch_size = 1024
-        learning_rate = 0.00036
-
         """
         run second trained model on test dataset
         """
-        batch_size = 128
-        learning_rate = 0.0001
+        batch_size = 1024
         # create data loader
         self.dataloader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=False)
         trainer = Trainer(model=self.second_trained_model)
@@ -136,13 +132,13 @@ class main_run_class:
         print("create test dataset")
         self.create_dataset_test(run_name_model[0])
         print("loading first model")
-        self.load_first_model()
+        # self.load_first_model()
         print("create test dataset")
         self.create_dataset_test(run_name_model[1])
         print("loading second model")
         self.load_second_model()
         print("run first model on test")
-        self.run_first_model()
+        # self.run_first_model()
         print("save test_tagged by first model")
         self.save_test_tagged(run_name_model[0])
         print("run second model on test")
