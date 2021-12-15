@@ -6,7 +6,7 @@ from sklearn.metrics import f1_score
 
 
 class Trainer:
-    def __init__(self, model, optimizer, device=None):
+    def __init__(self, model, optimizer=None, device=None):
         """
             Initialize the trainer.
             :param model: Instance of the model to train.
@@ -41,9 +41,8 @@ class Trainer:
                 y_prob = self.model(x_train)
 
                 # Compute and print loss
-                # if self.loss_fn_string == "binary_cross_entropy":
-                # TODO: let the model get the loss
                 loss = torch.nn.functional.nll_loss(y_prob, y_train.long())
+
                 # Zero gradients, perform a backward pass,
                 # and update the weights.
                 loss.backward()
@@ -56,8 +55,8 @@ class Trainer:
     def eval(self, dl_dev: DataLoader):
         """
         Args:
-            dl_dev:
-        Returns: f1_score
+            dl_dev: model to evaluate
+        Returns: f1 score
         """
         f_score = 0
         for batch_ndx, sample in enumerate(dl_dev):
@@ -82,6 +81,4 @@ class Trainer:
             y_pred = self.model(x_test)
             y_pred = y_pred[:, 0] < y_pred[:, 1]
             predictions.extend(y_pred.tolist())
-            # for i in range(y_pred.shape[0]):
-            #     predictions[x_test[i]].append(y_pred[i])
         return predictions

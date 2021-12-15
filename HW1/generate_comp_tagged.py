@@ -48,7 +48,7 @@ class main_run_class:
         test_data_path = "data/test.untagged"
         glove_path = 'glove-twitter-100'
         embedding_size = int(glove_path.split('-')[-1])
-        window_size = 2
+        window_size = 1
 
         # print("loading embedding model " + glove_path)
         # glove_model = gensim.downloader.load(glove_path)
@@ -85,12 +85,12 @@ class main_run_class:
         # create test tagged
 
     def run_second_model(self):
-        batch_size = 128
-        learning_rate = 0.0001
+        batch_size = 1024
+        learning_rate = 0.00036
+
         # create data loader
         self.dataloader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=False)
-        optimizer = torch.optim.Adam(self.second_trained_model.parameters(), lr=learning_rate)
-        trainer = Trainer(model=self.second_trained_model, optimizer=optimizer, device=None)
+        trainer = Trainer(model=self.second_trained_model)
         # save dict as self.second_model_dict
         self.predictions_second_model = trainer.test(self.dataloader_test)
 
