@@ -102,17 +102,16 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
 
     # first model - train
     first_model = First_Model()
-    x_train = list(dataset_train.dict_words2embedd.values())
-    y_train = list(dataset_train.dict_words2tags.values())
-
+    x_train, y_train = dataset_train.split()
     # data imbalance fix
+
     new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
 
     # Hyperparameters
-    batch_size = 64
-    num_epochs = 1
-    learning_rate = 0.0001
+    batch_size = 300
+    num_epochs = 30
+    learning_rate = 0.00005
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
 
@@ -136,7 +135,6 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     torch.save(second_model.state_dict(), PATH)
 
     trainer.test(dl_test)
-
 
 
 if __name__ == '__main__':

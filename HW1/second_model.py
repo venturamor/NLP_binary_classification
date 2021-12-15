@@ -21,7 +21,7 @@ class Second_model(torch.nn.Module):
         self.bn2 = torch.nn.BatchNorm1d(num_features=hiddenSize_2)
         self.fc3 = torch.nn.Linear(hiddenSize_2, outputSize)
         self.bn3 = torch.nn.BatchNorm1d(num_features=outputSize)
-        self.dropout = torch.nn.Dropout(0.01)
+        self.dropout = torch.nn.Dropout(0.001)
 
     def forward(self, x):
         out = self.fc1(x.float())

@@ -11,7 +11,6 @@ import torch
 import second_model
 import os
 
-
 class main_run_class:
     def __init__(self):
         self.first_trained_model = None
@@ -89,7 +88,7 @@ class main_run_class:
         batch_size = 128
         learning_rate = 0.0001
         # create data loader
-        self.dataloader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=True)
+        self.dataloader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=False)
         optimizer = torch.optim.Adam(self.second_trained_model.parameters(), lr=learning_rate)
         trainer = Trainer(model=self.second_trained_model, optimizer=optimizer, device=None)
         # save dict as self.second_model_dict
@@ -99,7 +98,7 @@ class main_run_class:
 
         self.words = [item for sublist in self.dataset_test.words_lists for item in sublist]
         # if run_name == 'first_model':
-        #     f = open("comp_m1_313177412.tagged", "w")
+        #     f = open("comp_m1_313177412.tagged", "w", encoding="utf8")
         #     for word in words:
         #         embedding = self.dataset_test.dict_words2embedd[word.lower()]
         #         pred_of_word = self.predictions_second_model[idx_of_word]
@@ -112,10 +111,10 @@ class main_run_class:
 
                 # TODO save test embeddings words in a list: self.word_embeddings
 
-        f = open("comp_m2_313177412.tagged", "w")
+        f = open("comp_m2_313177412.tagged", "w", encoding="utf8")
         for idx, word in enumerate(self.words):
             prediction = self.predictions_second_model[idx]
-            f.write(word + "    " + prediction + "\n")
+            f.write(word + "    " + str(prediction) + "\n")
 
     def run(self):
         print("create test dataset")
