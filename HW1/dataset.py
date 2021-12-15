@@ -198,3 +198,10 @@ class EntityDataSet(Dataset):
             return self.dict_idx2embedd.__len__() - 1
         else:
             return self.dict_idx2tuple.__len__() - 1
+
+    def split(self):
+
+        x = list(self.dict_idxCorpus_2embedd.values())
+        y = [item[1] for item in self.dict_idxCorpus2tuple.values()]
+
+        return x, y

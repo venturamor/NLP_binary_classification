@@ -52,8 +52,9 @@ def run_first_model(dataset_train, dataset_dev, dataset_test):
     """
     # first model - train
     first_model = First_Model()
-    x_train = list(dataset_train.dict_words2embedd.values())
-    y_train = list(dataset_train.dict_words2tags.values())
+    # x_train = list(dataset_train.dict_words2embedd.values())
+    # y_train = list(dataset_train.dict_words2tags.values())
+    x_train, y_train = dataset_train.split()
 
     # data imbalance fix
 
@@ -70,8 +71,11 @@ def run_first_model(dataset_train, dataset_dev, dataset_test):
     print('done training first model')
     # best_clf = first_model.train(x_train, y_train)
     # eval on dev
-    x_dev = list(dataset_dev.dict_words2embedd.values())
-    y_dev = list(dataset_dev.dict_words2tags.values())
+    # x_dev = list(dataset_dev.dict_words2embedd.values())
+    # y_dev = list(dataset_dev.dict_words2tags.values())
+    x_dev, y_dev = dataset_train.split()
+
+
     print('start testing first model')
     y_prob, y_pred = first_model.test(x_dev)
     print('done testing first model')
