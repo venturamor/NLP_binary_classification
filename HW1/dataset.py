@@ -195,9 +195,9 @@ class EntityDataSet(Dataset):
         :return:
         """
         if self.is_test:
-            return self.dict_idx2embedd.__len__() - 1
+            return self.dict_idxCorpus_2embedd.__len__()
         else:
-            return self.dict_idx2tuple.__len__() - 1
+            return self.dict_idxCorpus2tuple.__len__()
 
     def split(self):
 

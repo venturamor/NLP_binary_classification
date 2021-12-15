@@ -13,6 +13,8 @@ from gensim import downloader
 from torch.utils.data import Dataset
 from torch.utils.data import TensorDataset
 import pickle
+import os
+
 
 def data_imbalance_fix(x_train, y_train):
     """
@@ -101,23 +103,22 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
 
     # first model - train
     first_model = First_Model()
-    x_train = list(dataset_train.dict_words2embedd.values())
-    y_train = list(dataset_train.dict_words2tags.values())
-
+    x_train, y_train = dataset_train.split()
     # data imbalance fix
+
     new_x_train_cpy, new_y_train_cpy = data_imbalance_fix(x_train, y_train)
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
 
     # Hyperparameters
-    batch_size = 128
-    num_epochs = 100
-    learning_rate = 0.0001
+    batch_size = 32
+    num_epochs = 12
+    learning_rate = 0.001
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
 
     dl_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     dl_dev = DataLoader(dataset_dev, batch_size=batch_size, shuffle=True)
-    dl_test = DataLoader(dataset_test, batch_size=batch_size, shuffle=True)
+    dl_test = DataLoader(dataset_test, batch_size=batch_size, shuffle=False)
 
     second_model = Second_model(inputSize=data_size, outputSize=2)
     print(second_model)
@@ -148,16 +149,16 @@ if __name__ == '__main__':
     test_path = "data/test.untagged"
 
     print("loading gensim model")
-    # gensim_model = gensim.downloader.load(GLOVE_PATH)
-    # # try to save to pickle and load from there 15/12
-    # # Store data (serialize)
-    gensim_model_path = 'gensim_model_50.pickle'
-    #
-    # with open(gensim_model_path, 'wb') as handle:
-    #     pickle.dump(gensim_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-    with open(gensim_model_path, 'rb') as handle:
-        gensim_model = pickle.load(handle)
+    # download if there is no pickle
+    gensim_model_path = 'gensim_model.pickle'
+    if os.path.isfile(gensim_model_path):
+        gensim_model_path = 'gensim_model.pickle'
+        with open(gensim_model_path, 'rb') as handle:
+            gensim_model = pickle.load(handle)
+    else:
+        gensim_model = gensim.downloader.load(glove_path)
+        with open('gensim_model.pickle', 'wb') as handle:
+            pickle.dump(gensim_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print("gensim model downloaded")
 
     # Hyper parameter

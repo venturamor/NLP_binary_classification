@@ -75,12 +75,13 @@ class Trainer:
             dl_dev:
         Returns: predictions
         """
-        predictions = {}
+        predictions = []
         for batch_ndx, sample in enumerate(dl_test):
             self.model.eval()
             x_test = sample
             y_pred = self.model(x_test)
             y_pred = y_pred[:, 0] < y_pred[:, 1]
-            for i in range(y_pred.shape[0]):
-                predictions[x_test[i]] = y_pred[i]
+            predictions.extend(y_pred.tolist())
+            # for i in range(y_pred.shape[0]):
+            #     predictions[x_test[i]].append(y_pred[i])
         return predictions
