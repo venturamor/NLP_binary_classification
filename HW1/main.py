@@ -109,9 +109,9 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
 
     # Hyperparameters
-    batch_size = 300
-    num_epochs = 30
-    learning_rate = 0.00005
+    batch_size = 32
+    num_epochs = 12
+    learning_rate = 0.001
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
 
