@@ -57,10 +57,10 @@ class First_Model():
         if self.use_gridsearch:
             self.best_clf = self.clf.best_estimator_
             print(self.best_clf)
-            print('train evaluation - f1 score: ', self.eval(x_eval=x_train, y_eval=y_train))
+            print('train evaluation - accuracy score: ', self.eval(x_eval=x_train, y_eval=y_train))
             return self.best_clf
         else:
-            print('train evaluation - f1 score: ', self.eval(x_eval=x_train, y_eval=y_train))
+            print('train evaluation - accuracy score: ', self.eval(x_eval=x_train, y_eval=y_train))
             return self.clf
 
 

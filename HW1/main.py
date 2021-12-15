@@ -80,10 +80,10 @@ def run_first_model(dataset_train, dataset_dev, dataset_test):
     print('done evaluating first model')
     print("First model done with f1: ")
 
-    pickle_path = "first_model.pickle"
+    pickle_path = "first_model_ver2.pickle"
 
-    # Store data (serialize)
-    with open('first_model.pickle', 'wb') as handle:
+    # Store data (serialize)+
+    with open(pickle_path, 'wb') as handle:
         pickle.dump(first_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -142,18 +142,25 @@ if __name__ == '__main__':
     dev_path = "data/dev.tagged"
     test_path = "data/test.untagged"
 
-    print("loading model")
-    model = gensim.downloader.load(GLOVE_PATH)
-    print("model downloaded")
+    print("loading gensim model")
+    # gensim_model = gensim.downloader.load(GLOVE_PATH)
+    # try to save to pickle and load from there 15/12
+    # Store data (serialize)
+    # with open('gensim_model.pickle', 'wb') as handle:
+    #     pickle.dump(gensim_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    gensim_model_path = 'gensim_model.pickle'
+    with open(gensim_model_path, 'rb') as handle:
+        gensim_model = pickle.load(handle)
+    print("gensim model downloaded")
 
     # Hyper parameter
     window_size = 1
 
-    dataset_train = dataset.EntityDataSet(train_path, model=model, embedding_size=embedding_size, window_size=window_size)
-    dataset_dev = dataset.EntityDataSet(dev_path, model=model, embedding_size=embedding_size, window_size=window_size)
-    dataset_test = dataset.EntityDataSet(test_path, model=model, embedding_size=embedding_size,
+    dataset_train = dataset.EntityDataSet(train_path, model=gensim_model, embedding_size=embedding_size, window_size=window_size)
+    dataset_dev = dataset.EntityDataSet(dev_path, model=gensim_model, embedding_size=embedding_size, window_size=window_size)
+    dataset_test = dataset.EntityDataSet(test_path, model=gensim_model, embedding_size=embedding_size,
                                          window_size=window_size, is_test=True)
     print('done creating datasets')
 
-    # run_first_model(dataset_train, dataset_dev, dataset_test)
-    run_second_model(dataset_train, dataset_dev, dataset_test)
+    run_first_model(dataset_train, dataset_dev, dataset_test)
+    # run_second_model(dataset_train, dataset_dev, dataset_test)

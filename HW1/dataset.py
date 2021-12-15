@@ -88,7 +88,13 @@ class EntityDataSet(Dataset):
         self.dict_words2tuple = {}
         # New dict for test
         self.dict_idx2embedd = {}
+        # dicts for get item using idx of corpus (not unique)
+        self.dict_idxCorpus_2embedd = {}
+        self.dict_idxCorpus2tuple = {}
+
         self.define_dicts(words, tags, embeddings)
+        print('done dataset config')
+
 
     def prepare_data(self, data):
         tagged_sentences = data.split('\n\n')[:-1]
@@ -151,6 +157,11 @@ class EntityDataSet(Dataset):
         """
         dict_index = 0
         for idx, word in enumerate(words):
+            # for get item
+            self.dict_idxCorpus_2embedd[idx] = embeddings[idx]
+            if not self.is_test:
+                self.dict_idxCorpus2tuple[idx] = (embeddings[idx], tags[idx])
+            # for working with unique
             if word not in self.dict_words2embedd.keys():
                 # assumption : for 2 identical words - same tag
                 if self.is_test:
@@ -172,9 +183,11 @@ class EntityDataSet(Dataset):
         :return: tuple of (embeddings, tag)
         '''
         if self.is_test:
-            return self.dict_idx2embedd[item]
+            # return self.dict_idx2embedd[item]
+            return self.dict_idxCorpus_2embedd[item]
         else:
-            return self.dict_idx2tuple[item]
+            # return self.dict_idx2tuple[item]
+            return self.dict_idxCorpus2tuple[item]
 
     def __len__(self):
         """
