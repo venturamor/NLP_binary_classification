@@ -13,6 +13,8 @@ from gensim import downloader
 from torch.utils.data import Dataset
 from torch.utils.data import TensorDataset
 import pickle
+import os
+
 
 def data_imbalance_fix(x_train, y_train):
     """
@@ -104,8 +106,8 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     dataset_train = dataset.ListDataSet(new_x_train_cpy, new_y_train_cpy)
 
     # Hyperparameters
-    batch_size = 128
-    num_epochs = 100
+    batch_size = 64
+    num_epochs = 1
     learning_rate = 0.0001
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
@@ -132,10 +134,11 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     trainer.test(dl_test)
 
 
+
 if __name__ == '__main__':
 
-    GLOVE_PATH = 'glove-twitter-100'
-    embedding_size = int(GLOVE_PATH.split('-')[-1])
+    glove_path = 'glove-twitter-100'
+    embedding_size = int(glove_path.split('-')[-1])
 
     # load dataset
     train_path = "data/train.tagged"
@@ -143,15 +146,18 @@ if __name__ == '__main__':
     test_path = "data/test.untagged"
 
     print("loading gensim model")
-    # gensim_model = gensim.downloader.load(GLOVE_PATH)
-    # try to save to pickle and load from there 15/12
-    # Store data (serialize)
-    # with open('gensim_model.pickle', 'wb') as handle:
-    #     pickle.dump(gensim_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # download if there is no pickle
     gensim_model_path = 'gensim_model.pickle'
-    with open(gensim_model_path, 'rb') as handle:
-        gensim_model = pickle.load(handle)
+    if os.path.isfile(gensim_model_path):
+        gensim_model_path = 'gensim_model.pickle'
+        with open(gensim_model_path, 'rb') as handle:
+            gensim_model = pickle.load(handle)
+    else:
+        gensim_model = gensim.downloader.load(glove_path)
+        with open('gensim_model.pickle', 'wb') as handle:
+            pickle.dump(gensim_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print("gensim model downloaded")
+
 
     # Hyper parameter
     window_size = 1
@@ -162,5 +168,5 @@ if __name__ == '__main__':
                                          window_size=window_size, is_test=True)
     print('done creating datasets')
 
-    run_first_model(dataset_train, dataset_dev, dataset_test)
-    # run_second_model(dataset_train, dataset_dev, dataset_test)
+    # run_first_model(dataset_train, dataset_dev, dataset_test)
+    run_second_model(dataset_train, dataset_dev, dataset_test)

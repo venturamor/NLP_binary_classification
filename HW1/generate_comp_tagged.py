@@ -9,6 +9,8 @@ from gensim import downloader
 import gensim
 import torch
 import second_model
+import os
+
 
 class main_run_class:
     def __init__(self):
@@ -37,7 +39,7 @@ class main_run_class:
         :return: load second model from state dict
         """
         second_model_path = "second_model.pt"
-        data_size = self.dataset_test.__getitem__(0)[0].__len__()
+        data_size = self.dataset_test.__getitem__(0).__len__()
         model = second_model.Second_model(inputSize=data_size, outputSize=2)
         model.load_state_dict(torch.load(second_model_path))
         self.second_trained_model = model
@@ -49,12 +51,25 @@ class main_run_class:
         embedding_size = int(glove_path.split('-')[-1])
         window_size = 2
 
-        print("loading embedding model " + glove_path)
-        glove_model = gensim.downloader.load(glove_path)
-        print(glove_path + " - model downloaded")
+        # print("loading embedding model " + glove_path)
+        # glove_model = gensim.downloader.load(glove_path)
+        # print(glove_path + " - model downloaded")
+
+        print("loading gensim model")
+        # download if there is no pickle
+        gensim_model_path = 'gensim_model.pickle'
+        if os.path.isfile(gensim_model_path):
+            gensim_model_path = 'gensim_model.pickle'
+            with open(gensim_model_path, 'rb') as handle:
+                gensim_model = pickle.load(handle)
+        else:
+            gensim_model = gensim.downloader.load(glove_path)
+            with open('gensim_model.pickle', 'wb') as handle:
+                pickle.dump(gensim_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print("gensim model downloaded")
 
         self.dataset_test = EntityDataSet(test_data_path,
-                                          model=glove_model,
+                                          model=gensim_model,
                                           embedding_size=embedding_size,
                                           window_size=window_size,
                                           is_test=True)
@@ -106,13 +121,13 @@ class main_run_class:
         print("create test dataset")
         self.create_dataset_test()
         print("loading first model")
-        self.load_first_model()
+        # self.load_first_model()
         print("loading second model")
         self.load_second_model()
         print("run first model on test")
-        self.run_first_model()
+        # self.run_first_model()
         print("save test_tagged by first model")
-        self.save_test_tagged('first_model')
+        # self.save_test_tagged('first_model')
         print("run second model on test")
         self.run_second_model()
         print("save test_tagged by second model")
