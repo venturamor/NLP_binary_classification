@@ -94,7 +94,7 @@ class main_run_class:
         """
         run second trained model on test dataset
         """
-        batch_size = 2
+        batch_size = 2048
         # create data loader
         self.dataloader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=False)
         trainer = Trainer(model=self.second_trained_model)

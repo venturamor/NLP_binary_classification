@@ -131,11 +131,9 @@ class EntityDataSet(Dataset):
                     embedding = model[word.lower()]
                 except KeyError:
                     if word == word_start:
-                        # embedding = 0.1 * np.ones(embedding_size)
-                        embedding = np.random.rand(embedding_size) * 0.1
+                        embedding = 0.1 * np.ones(embedding_size)
                     elif word == word_end:
-                        # embedding = 0.5 * np.ones(embedding_size)
-                        embedding = np.random.rand(embedding_size) * 0.5
+                        embedding = 0.9 * np.ones(embedding_size)
                     else:
                         # embedding = np.zeros(embedding_size)
                         embedding = np.random.rand(embedding_size)

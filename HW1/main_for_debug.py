@@ -75,8 +75,8 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
 
     # Hyperparameters
     batch_size = 1024
-    num_epochs = 26
-    learning_rate = 0.000048
+    num_epochs = 30
+    learning_rate = 0.000076
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
 
@@ -94,8 +94,8 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     print("Second model done with f1: ", f1)
 
     # Only for final net
-    trainer.fit(dl_train=dl_dev, dl_dev=dl_dev, num_epochs=num_epochs)
-    f1 = trainer.eval(dl_dev=dl_dev)
+    # trainer.fit(dl_train=dl_dev, dl_dev=dl_dev, num_epochs=num_epochs)
+    # f1 = trainer.eval(dl_dev=dl_dev)
     print("Second model after training on dev done with f1: ", f1)
 
     # Specify a path

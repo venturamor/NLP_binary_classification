@@ -32,7 +32,7 @@ class Second_model(torch.nn.Module):
         self.fc5 = torch.nn.Linear(hiddenSize_4, outputSize)
         self.bn5 = torch.nn.BatchNorm1d(num_features=outputSize)
 
-        self.dropout = torch.nn.Dropout(0.01)
+        self.dropout = torch.nn.Dropout(0.025)
 
         # for layer in [self.fc1, self.fc2, self.fc3]:
         #     layer.weight.data.uniform_(-0.5, 0.5)
