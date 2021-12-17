@@ -79,6 +79,6 @@ class Trainer:
             self.model.eval()
             x_test = sample
             y_pred = self.model(x_test)
-            y_pred = y_pred[:, 0] < y_pred[:, 1]
-            predictions.extend(y_pred.tolist())
+            y_bool = y_pred[:, 0] < y_pred[:, 1]
+            predictions.extend(y_bool.tolist())
         return predictions

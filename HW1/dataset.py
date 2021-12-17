@@ -123,7 +123,7 @@ class EntityDataSet(Dataset):
         embeddings = []
         for sentence in words_lists:
             embedd_sentence = []
-            for word in sentence:
+            for idx, word in enumerate(sentence):
                 ind_symbol = [ind for ind, x in enumerate([(symbol in word) for symbol in symbols]) if x]
                 if ind_symbol:
                     word = symbols[ind_symbol[0]]
@@ -131,13 +131,18 @@ class EntityDataSet(Dataset):
                     embedding = model[word.lower()]
                 except KeyError:
                     if word == word_start:
-                        embedding = 0.1 * np.zeros(embedding_size)
+                        # embedding = 0.1 * np.ones(embedding_size)
+                        embedding = np.random.rand(embedding_size) * 0.1
                     elif word == word_end:
-                        embedding = 0.9 * np.ones(embedding_size)
+                        # embedding = 0.5 * np.ones(embedding_size)
+                        embedding = np.random.rand(embedding_size) * 0.5
                     else:
-                        embedding = np.zeros(embedding_size)
+                        # embedding = np.zeros(embedding_size)
+                        embedding = np.random.rand(embedding_size)
                 is_capital = int(word[0].isupper())
+                # is_capital = 0
                 embedding = np.append(embedding, is_capital)
+                embedding = np.append(embedding, idx * 0.1)
                 embedd_sentence.append(embedding)
             embeddings.append(embedd_sentence)
         return embeddings

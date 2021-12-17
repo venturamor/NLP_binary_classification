@@ -75,8 +75,8 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
 
     # Hyperparameters
     batch_size = 1024
-    num_epochs = 16
-    learning_rate = 0.00036
+    num_epochs = 26
+    learning_rate = 0.000048
 
     data_size = dataset_train.__getitem__(0)[0].__len__()
 
@@ -93,18 +93,25 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
     f1 = trainer.eval(dl_dev=dl_dev)
     print("Second model done with f1: ", f1)
 
+    # Only for final net
+    trainer.fit(dl_train=dl_dev, dl_dev=dl_dev, num_epochs=num_epochs)
+    f1 = trainer.eval(dl_dev=dl_dev)
+    print("Second model after training on dev done with f1: ", f1)
+
     # Specify a path
     PATH = "second_model.pt"
 
     # Save
     torch.save(second_model.state_dict(), PATH)
 
-    trainer.test(dl_test)
+    predictions = trainer.test(dl_test)
 
 
 if __name__ == '__main__':
 
-    glove_path = 'glove-twitter-50'  # 100
+    glove_size = "100"
+
+    glove_path = 'glove-twitter-'+glove_size
     embedding_size = int(glove_path.split('-')[-1])
 
     # load dataset
@@ -114,11 +121,12 @@ if __name__ == '__main__':
 
     print("loading gensim model")
     # download if there is no pickle
-    gensim_model_path = 'gensim_model_50.pickle'  #  'gensim_model.pickle'
+    gensim_model_path = 'gensim_model_'+glove_size+'.pickle'  #  'gensim_model.pickle'
     if os.path.isfile(gensim_model_path):
         with open(gensim_model_path, 'rb') as handle:
             gensim_model = pickle.load(handle)
     else:
+        print("No pickle.. generating..")
         gensim_model = gensim.downloader.load(glove_path)
         with open(gensim_model_path, 'wb') as handle:
             pickle.dump(gensim_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -133,5 +141,5 @@ if __name__ == '__main__':
                                          window_size=window_size, is_test=True)
     print('done creating datasets')
 
-    run_first_model(dataset_train, dataset_dev, dataset_test, False, "first_model_ver2.pickle")
+    # run_first_model(dataset_train, dataset_dev, dataset_test, False, "first_model_ver2.pickle")
     run_second_model(dataset_train, dataset_dev, dataset_test)
