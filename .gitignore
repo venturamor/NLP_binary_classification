@@ -10,3 +10,5 @@ HW1/data_oldData/wnuteval.py
 HW1/data_oldData/desktop.ini
 HW1/__pycache__/dataset.cpython-38.pyc
 HW1/~$1 - WET.docx
+HW1/gensim_model_50.pickle
+HW1/gensim_model_100.pickle
