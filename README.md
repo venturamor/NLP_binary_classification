@@ -6,7 +6,7 @@ Classify each word to one of 2 classes; True / False. Specifically here - whethe
 
 **Data**: 
 
-train.tagged, dev.tagged, test.untagged
+train.tagged - imbalanced dramatically, dev.tagged, test.untagged
 
 **Tools**:
 
