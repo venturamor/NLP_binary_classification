@@ -27,7 +27,7 @@ class main_run_class:
         """
         # Load data (deserialize)
         # first_model_pickle_path = 'first_model.pickle'
-        first_model_pickle_path = 'first_model_ver2.pickle'  # glove 50 no balance
+        first_model_pickle_path = 'first_model_glove25_no_balance.pickle'  # glove 50 no balance
         with open(first_model_pickle_path, 'rb') as handle:
             first_model = pickle.load(handle)
             self.first_trained_model = first_model
@@ -49,12 +49,12 @@ class main_run_class:
         :return:
         """
 
-        model_to_glove = {'first_model': ['glove-twitter-50', 'gensim_model_50.pickle'],
+        model_to_glove = {'first_model': ['glove-twitter-25', 'gensim_model_25.pickle'],
                           'second_model': ['glove-twitter-100', 'gensim_model.pickle'],
-                          'competition_model': ['glove-twitter-50', 'gensim_model_50.pickle']}
+                          'competition_model': ['glove-twitter-100', 'gensim_model_100.pickle']}
 
         test_data_path = "data/test.untagged"
-        glove_path = model_to_glove[run_name]
+        glove_path = model_to_glove[run_name][0]
         embedding_size = int(glove_path.split('-')[-1])
         window_size = 1
 
@@ -91,14 +91,11 @@ class main_run_class:
         # create test tagged
 
     def run_second_model(self):
-        batch_size = 1024
-        learning_rate = 0.00036
-
         """
         run second trained model on test dataset
+        :return:
         """
         batch_size = 128
-        learning_rate = 0.0001
         # create data loader
         self.dataloader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=False)
         trainer = Trainer(model=self.second_trained_model)
@@ -113,7 +110,7 @@ class main_run_class:
         """
         test_tagged__names = {'first_model': ["comp_m1_313177412.tagged", self.predictions_first_model],
                               'second_model': ["comp_m2_313177412.tagged", self.predictions_second_model],
-                              'competition_model': ["comp_m3_313177412.tagged", self.predictions_first_model]}
+                              'competition_model': ["comp_m3_313177412.tagged", self.predictions_second_model]}
 
         f = open(test_tagged__names[run_name][0], "w", encoding="utf8")
         for sentence in self.dataset_test.words_lists_orig:
@@ -144,6 +141,10 @@ class main_run_class:
         print("save test_tagged by first model")
         self.save_test_tagged(run_name_model[0])
 
+        # competitive model - ad first model
+        print("save test_tagged by second model")
+        self.save_test_tagged(run_name_model[2])
+
         # second model
         print("create test dataset")
         self.create_dataset_test(run_name_model[1])
@@ -153,8 +154,6 @@ class main_run_class:
         self.run_second_model()
         print("save test_tagged by second model")
         self.save_test_tagged(run_name_model[1])
-
-        # TODO: competitive_model
 
 
 if __name__ == '__main__':

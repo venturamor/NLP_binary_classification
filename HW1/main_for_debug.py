@@ -104,7 +104,8 @@ def run_second_model(dataset_train, dataset_dev, dataset_test):
 
 if __name__ == '__main__':
 
-    glove_path = 'glove-twitter-50'  # 100
+    glove_path = 'glove-twitter-25'  # 100
+    # glove_path = 'glove-twitter-50'
     embedding_size = int(glove_path.split('-')[-1])
 
     # load dataset
@@ -114,7 +115,7 @@ if __name__ == '__main__':
 
     print("loading gensim model")
     # download if there is no pickle
-    gensim_model_path = 'gensim_model_50.pickle'  #  'gensim_model.pickle'
+    gensim_model_path = 'gensim_model_25.pickle'  #  'gensim_model.pickle'
     if os.path.isfile(gensim_model_path):
         with open(gensim_model_path, 'rb') as handle:
             gensim_model = pickle.load(handle)
@@ -133,5 +134,5 @@ if __name__ == '__main__':
                                          window_size=window_size, is_test=True)
     print('done creating datasets')
 
-    run_first_model(dataset_train, dataset_dev, dataset_test, False, "first_model_ver2.pickle")
+    run_first_model(dataset_train, dataset_dev, dataset_test, data_balance=False, pickle_path="first_model_glove25_with_balance.pickle")
     run_second_model(dataset_train, dataset_dev, dataset_test)

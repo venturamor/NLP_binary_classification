@@ -131,7 +131,7 @@ class EntityDataSet(Dataset):
                     embedding = model[word.lower()]
                 except KeyError:
                     if word == word_start:
-                        embedding = 0.1 * np.zeros(embedding_size)
+                        embedding = 0.1 * np.ones(embedding_size)
                     elif word == word_end:
                         embedding = 0.9 * np.ones(embedding_size)
                     else:
