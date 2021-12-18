@@ -50,7 +50,7 @@ class main_run_class:
         """
 
         model_to_glove = {'first_model': ['glove-twitter-25', 'gensim_model_25.pickle'],
-                          'second_model': ['glove-twitter-100', 'gensim_model.pickle'],
+                          'second_model': ['glove-twitter-100', 'gensim_model_100.pickle'],
                           'competition_model': ['glove-twitter-100', 'gensim_model_100.pickle']}
 
         test_data_path = "data/test.untagged"
@@ -93,9 +93,8 @@ class main_run_class:
     def run_second_model(self):
         """
         run second trained model on test dataset
-        :return:
         """
-        batch_size = 128
+        batch_size = 2048
         # create data loader
         self.dataloader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=False)
         trainer = Trainer(model=self.second_trained_model)
@@ -108,15 +107,16 @@ class main_run_class:
         :param run_name: model name
         :return: comp_mX_313177412.tagged files (x [1,2,3])
         """
-        test_tagged__names = {'first_model': ["comp_m1_313177412.tagged", self.predictions_first_model],
+        test_tagged_names = {'first_model': ["comp_m1_313177412.tagged", self.predictions_first_model],
                               'second_model': ["comp_m2_313177412.tagged", self.predictions_second_model],
                               'competition_model': ["comp_m3_313177412.tagged", self.predictions_second_model]}
 
-        f = open(test_tagged__names[run_name][0], "w", encoding="utf8")
+        f = open(test_tagged_names[run_name][0], "w", encoding="utf8")
+        word_idx = 0
         for sentence in self.dataset_test.words_lists_orig:
             for idx, word in enumerate(sentence):
-                prediction = test_tagged__names[run_name][1][idx]
-                # prediction = self.predictions_first_model[idx]
+                prediction = test_tagged_names[run_name][1][word_idx]
+                word_idx = word_idx + 1
                 if not prediction:
                     prediction = 'O'
                 f.write(word + '\t' + str(prediction) + "\n")
