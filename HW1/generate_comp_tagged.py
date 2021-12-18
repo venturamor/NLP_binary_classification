@@ -109,7 +109,7 @@ class main_run_class:
         """
         test_tagged_names = {'first_model': ["comp_m1_313177412.tagged", self.predictions_first_model],
                               'second_model': ["comp_m2_313177412.tagged", self.predictions_second_model],
-                              'competition_model': ["comp_m3_313177412.tagged", self.predictions_second_model]}
+                              'competitive_model': ["comp_m3_313177412.tagged", self.predictions_second_model]}
 
         f = open(test_tagged_names[run_name][0], "w", encoding="utf8")
         word_idx = 0
@@ -141,10 +141,6 @@ class main_run_class:
         print("save test_tagged by first model")
         self.save_test_tagged(run_name_model[0])
 
-        # competitive model - ad first model
-        print("save test_tagged by second model")
-        self.save_test_tagged(run_name_model[2])
-
         # second model
         print("create test dataset")
         self.create_dataset_test(run_name_model[1])
@@ -154,6 +150,10 @@ class main_run_class:
         self.run_second_model()
         print("save test_tagged by second model")
         self.save_test_tagged(run_name_model[1])
+
+        # competitive model - as second model
+        print("save test_tagged by second model")
+        self.save_test_tagged(run_name_model[2])
 
 
 if __name__ == '__main__':
