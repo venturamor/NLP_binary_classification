@@ -24,8 +24,10 @@ class ListDataSet(Dataset):
 
 
 class EntityDataSet(Dataset):
-    def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1, is_test=False):
+    def __init__(self, file_path, model, embedding_size, use_window=True, window_size=1, is_test=False,
+                 run_name='first_model'):
         """
+        :param run_name:
         :param file_path:
         :param wind_size: prev + curr word + next window
         """
@@ -34,7 +36,7 @@ class EntityDataSet(Dataset):
         # new embedding with window embedding neighbors
         padding_word_start = 'morVentura'
         padding_word_end = 'michaelToker'
-
+        self.run_name = run_name
         self.file_path = file_path
         self.is_test = is_test
         data = open(file_path, "r", encoding="utf8").read()
@@ -135,12 +137,15 @@ class EntityDataSet(Dataset):
                     elif word == word_end:
                         embedding = 0.9 * np.ones(embedding_size)
                     else:
-                        # embedding = np.zeros(embedding_size)
-                        embedding = np.random.rand(embedding_size)
+                        if self.run_name == 'second_model':
+                            embedding = np.random.rand(embedding_size)
+                        else:
+                            embedding = np.zeros(embedding_size)
                 is_capital = int(word[0].isupper())
-                # is_capital = 0
                 embedding = np.append(embedding, is_capital)
-                embedding = np.append(embedding, idx * 0.1)
+                if self.run_name == 'second_model':
+                  embedding = np.append(embedding, idx * 0.1)
+
                 embedd_sentence.append(embedding)
             embeddings.append(embedd_sentence)
         return embeddings
@@ -214,7 +219,6 @@ def data_imbalance_fix(x_train, y_train):
     :return:
     """
     # try to deal with data imbalance - resample minority (True)
-    # TODO: move as function to dataset.py
     true_indices = [index for index, element in enumerate(y_train) if element]
     false_indices = [index for index, element in enumerate(y_train) if not element]
     x_train_true_embedding = [x_train[ind] for ind in true_indices]

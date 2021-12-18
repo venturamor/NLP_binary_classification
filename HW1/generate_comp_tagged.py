@@ -71,11 +71,8 @@ class main_run_class:
                 pickle.dump(gensim_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
         print("gensim model downloaded")
 
-        self.dataset_test = EntityDataSet(test_data_path,
-                                          model=gensim_model,
-                                          embedding_size=embedding_size,
-                                          window_size=window_size,
-                                          is_test=True)
+        self.dataset_test = EntityDataSet(test_data_path, model=gensim_model, embedding_size=embedding_size,
+                                          window_size=window_size, is_test=True, run_name=run_name)
 
     def run_first_model(self):
         """

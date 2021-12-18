@@ -135,8 +135,10 @@ if __name__ == '__main__':
     # Hyper parameter
     window_size = 1
 
-    dataset_train = dataset.EntityDataSet(train_path, model=gensim_model, embedding_size=embedding_size, window_size=window_size)
-    dataset_dev = dataset.EntityDataSet(dev_path, model=gensim_model, embedding_size=embedding_size, window_size=window_size)
+    dataset_train = dataset.EntityDataSet(train_path, model=gensim_model, embedding_size=embedding_size,
+                                          window_size=window_size)
+    dataset_dev = dataset.EntityDataSet(dev_path, model=gensim_model, embedding_size=embedding_size,
+                                        window_size=window_size)
     dataset_test = dataset.EntityDataSet(test_path, model=gensim_model, embedding_size=embedding_size,
                                          window_size=window_size, is_test=True)
     print('done creating datasets')
